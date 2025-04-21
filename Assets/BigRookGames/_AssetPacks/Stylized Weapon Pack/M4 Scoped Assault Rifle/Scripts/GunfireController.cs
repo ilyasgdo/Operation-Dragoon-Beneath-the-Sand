@@ -42,6 +42,10 @@ namespace BigRookGames.Weapons
             lastScopeState = scopeActive;
         }
 
+        // --- Input ---
+        public bool playerControlled = true;
+        public KeyCode fireButton = KeyCode.Mouse0;
+
         private void Update()
         {
             // --- If rotate is set to true, rotate the weapon in scene ---
@@ -53,6 +57,12 @@ namespace BigRookGames.Weapons
 
             // --- Fires the weapon if the delay time period has passed since the last shot ---
             if (autoFire && ((timeLastFired + shotDelay) <= Time.time))
+            {
+                FireWeapon();
+            }
+
+            // --- Player controlled firing ---
+            if (playerControlled && Input.GetKeyDown(fireButton) && ((timeLastFired + shotDelay) <= Time.time))
             {
                 FireWeapon();
             }
