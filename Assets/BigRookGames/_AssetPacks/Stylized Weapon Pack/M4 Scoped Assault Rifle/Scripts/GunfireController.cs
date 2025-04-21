@@ -62,7 +62,7 @@ namespace BigRookGames.Weapons
             }
 
             // --- Player controlled firing ---
-            if (playerControlled && Input.GetKeyDown(fireButton) && ((timeLastFired + shotDelay) <= Time.time))
+            if (playerControlled && Input.GetKey(fireButton) && ((timeLastFired + shotDelay) <= Time.time))
             {
                 FireWeapon();
             }
@@ -91,7 +91,35 @@ namespace BigRookGames.Weapons
             // --- Shoot Projectile Object ---
             if (projectilePrefab != null)
             {
-                GameObject newProjectile = Instantiate(projectilePrefab, muzzlePosition.transform.position, muzzlePosition.transform.rotation, transform);
+                // Instancier le projectile à la position du muzzle avec la rotation correcte
+                // Utiliser la rotation du muzzle pour s'assurer que le projectile va dans la bonne direction
+                GameObject newProjectile = Instantiate(projectilePrefab, muzzlePosition.transform.position, muzzlePosition.transform.rotation);
+                
+                // S'assurer que le projectile est correctement orienté dans la direction de tir
+                newProjectile.transform.forward = muzzlePosition.transform.forward;
+                
+                // Ajouter le contrôleur de projectile s'il n'existe pas déjà
+                ProjectileController projectileController = newProjectile.GetComponent<ProjectileController>();
+                if (projectileController == null)
+                {
+                    projectileController = newProjectile.AddComponent<ProjectileController>();
+                }
+                
+                // S'assurer que le projectile a une vitesse appropriée
+                if (projectileController.projectileSpeed <= 0)
+                {
+                    projectileController.projectileSpeed = 100.0f;
+                }
+                
+                // Activer la traînée pour améliorer la visibilité
+                projectileController.useTrail = true;
+                
+                // Afficher un message de débogage pour confirmer le tir
+                Debug.Log("Arme a tiré un projectile avec une vitesse de " + projectileController.projectileSpeed);
+            }
+            else
+            {
+                Debug.LogWarning("Aucun prefab de projectile n'est assigné à l'arme!");
             }
 
             // --- Disable any gameobjects, if needed ---
@@ -130,7 +158,7 @@ namespace BigRookGames.Weapons
                 }
             }
 
-            // --- Insert custom code here to shoot projectile or hitscan from weapon ---
+            // --- Le code de projectile a été déplacé plus haut dans la fonction ---
 
         }
 
