@@ -70,9 +70,32 @@ namespace BigRookGames.Weapons
         
         private void Start()
         {
+            // Obtenir la caméra principale pour aligner le tir avec la vue du joueur
+            Camera mainCamera = Camera.main;
+            
             // Appliquer la vitesse initiale dans la direction avant du projectile
             // Utiliser la rotation actuelle du projectile pour déterminer la direction
-            rb.linearVelocity = transform.forward * projectileSpeed;
+            if (mainCamera != null)
+            {
+                // Utiliser la direction de la caméra pour le tir
+                rb.linearVelocity = mainCamera.transform.forward * projectileSpeed;
+                // Aligner le projectile avec la direction du tir
+                transform.forward = mainCamera.transform.forward;
+                Debug.Log("Projectile aligné avec la caméra");
+            }
+            else
+            {
+                rb.linearVelocity = transform.forward * projectileSpeed;
+            }
+            
+            // Vérifier si la vitesse est principalement appliquée sur l'axe Y (vers le haut) ou X (vers la droite)
+            if (Mathf.Abs(rb.linearVelocity.normalized.y) > 0.9f || Mathf.Abs(rb.linearVelocity.normalized.x) > 0.9f)
+            {
+                // Réorienter la vitesse pour qu'elle soit appliquée vers l'avant (axe Z)
+                Vector3 correctedVelocity = Camera.main ? Camera.main.transform.forward : Vector3.forward;
+                rb.linearVelocity = correctedVelocity * projectileSpeed;
+                Debug.Log("Correction de la vitesse du projectile: " + rb.linearVelocity);
+            }
             
             // Ajouter un effet visuel pour rendre le projectile plus visible
             if (GetComponent<Renderer>() == null)
