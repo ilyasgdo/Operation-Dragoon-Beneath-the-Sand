@@ -1,0 +1,807 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 1048,
+      "max": [
+        14.929908752441406,
+        57.573665618896484,
+        9.55490493774414
+      ],
+      "min": [
+        -14.951919555664063,
+        2.386370897293091,
+        -9.55490493774414
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 12576,
+      "componentType": 5126,
+      "count": 1048,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -0.9999997019767761
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 1048,
+      "max": [
+        0.9999998807907104,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -0.9999998807907104,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 1048,
+      "max": [
+        0.9867820143699646,
+        0.9585890173912048
+      ],
+      "min": [
+        0.005859000142663717,
+        0.005859000142663717
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 3912,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 25152,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        3.9195480346679688,
+        42.62291717529297,
+        6.967436790466309
+      ],
+      "min": [
+        -1.2732709646224976,
+        36.469520568847656,
+        6.967436790466309
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 25200,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        -2.8489444048318546e-07,
+        0.0,
+        1.0
+      ],
+      "min": [
+        -2.8489444048318546e-07,
+        0.0,
+        1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 16768,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0.6317479610443115,
+        0.7751739025115967,
+        1.7998148393871816e-07,
+        1.0
+      ],
+      "min": [
+        0.6317479014396667,
+        0.7751739025115967,
+        1.79981441306154e-07,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 8384,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0.7937870025634766,
+        0.9951490163803101
+      ],
+      "min": [
+        0.46341100335121155,
+        0.9646919965744019
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 15648,
+      "componentType": 5125,
+      "count": 6,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 25248,
+      "componentType": 5126,
+      "count": 95,
+      "max": [
+        4.0302886962890625,
+        -3.898231267929077,
+        0.6840095520019531
+      ],
+      "min": [
+        -4.0302886962890625,
+        -27.111740112304688,
+        -0.6840095520019531
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 26388,
+      "componentType": 5126,
+      "count": 95,
+      "max": [
+        0.9768593311309814,
+        0.9768597483634949,
+        1.0
+      ],
+      "min": [
+        -0.9768571257591248,
+        -0.9782946109771729,
+        -0.9408878684043884
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 16832,
+      "componentType": 5126,
+      "count": 95,
+      "max": [
+        0.9956486225128174,
+        0.994707465171814,
+        0.968372642993927,
+        1.0
+      ],
+      "min": [
+        -0.9408883452415466,
+        -0.9922646284103394,
+        -0.9807782173156738,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 8416,
+      "componentType": 5126,
+      "count": 95,
+      "max": [
+        0.9941409826278687,
+        0.9873939752578735
+      ],
+      "min": [
+        0.02899700030684471,
+        0.16648800671100616
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 15672,
+      "componentType": 5125,
+      "count": 384,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 27528,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        4.618412017822266,
+        38.474952697753906,
+        6.710425853729248
+      ],
+      "min": [
+        -0.6235730051994324,
+        37.370994567871094,
+        6.710425853729248
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 27576,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "min": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 18352,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        1.0,
+        0.00014512563939206302,
+        0.0,
+        1.0
+      ],
+      "min": [
+        1.0,
+        0.00014512221969198436,
+        0.0,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 9176,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0.9974370002746582,
+        0.9615970253944397
+      ],
+      "min": [
+        0.762906014919281,
+        0.9121729731559753
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 17208,
+      "componentType": 5125,
+      "count": 6,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 27624,
+      "componentType": 5126,
+      "count": 65,
+      "max": [
+        7.243476867675781,
+        44.17014694213867,
+        5.63328742980957
+      ],
+      "min": [
+        -7.243713855743408,
+        7.853541851043701,
+        4.128576278686523
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 28404,
+      "componentType": 5126,
+      "count": 65,
+      "max": [
+        0.8249685764312744,
+        0.8149852156639099,
+        1.0
+      ],
+      "min": [
+        -0.824974536895752,
+        -0.8347223401069641,
+        0.5506711006164551
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 18416,
+      "componentType": 5126,
+      "count": 65,
+      "max": [
+        1.0,
+        0.250645250082016,
+        0.8246849179267883,
+        1.0
+      ],
+      "min": [
+        -0.9975906014442444,
+        -0.15803052484989166,
+        -0.8229472041130066,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 9208,
+      "componentType": 5126,
+      "count": 65,
+      "max": [
+        0.8822630047798157,
+        0.9041100144386292
+      ],
+      "min": [
+        0.12926000356674194,
+        0.005859000142663717
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 17232,
+      "componentType": 5125,
+      "count": 306,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 40,
+      "max": [
+        1.3333333730697632
+      ],
+      "min": [
+        0.0416666679084301
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 40,
+      "max": [
+        0.0,
+        -0.0,
+        0.061048541218042374,
+        1.0
+      ],
+      "min": [
+        0.0,
+        -0.0,
+        -0.061048541218042374,
+        0.9981347918510437
+      ],
+      "type": "VEC4"
+    }
+  ],
+  "animations": [
+    {
+      "channels": [
+        {
+          "sampler": 0,
+          "target": {
+            "node": 8,
+            "path": "rotation"
+          }
+        }
+      ],
+      "name": "Take 001",
+      "samplers": [
+        {
+          "input": 25,
+          "interpolation": "LINEAR",
+          "output": 26
+        }
+      ]
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "AndreiVNK (https://sketchfab.com/AndreiVNK)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/old-wall-clock-8e920e8b129842718099a3f772cec024",
+      "title": "Old wall clock"
+    },
+    "generator": "Sketchfab-12.68.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 18456,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 9728,
+      "byteOffset": 18456,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 29184,
+      "byteOffset": 28184,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 19456,
+      "byteOffset": 57368,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 160,
+      "byteOffset": 76824,
+      "name": "floatBufferViews"
+    },
+    {
+      "buffer": 0,
+      "byteLength": 640,
+      "byteOffset": 76984,
+      "byteStride": 16,
+      "name": "floatBufferViews"
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 77624,
+      "uri": "scene.bin"
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_transmission"
+  ],
+  "images": [
+    {
+      "uri": "textures/Wall_clock_baseColor.png"
+    },
+    {
+      "uri": "textures/Wall_clock_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Wall_clock_normal.png"
+    },
+    {
+      "uri": "textures/Wall_clock_glass_transmission.png"
+    }
+  ],
+  "materials": [
+    {
+      "alphaCutoff": 0.7070101356,
+      "alphaMode": "MASK",
+      "doubleSided": true,
+      "name": "Wall_clock",
+      "normalTexture": {
+        "index": 2
+      },
+      "occlusionTexture": {
+        "index": 1
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "alphaMode": "BLEND",
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_transmission": {
+          "transmissionFactor": 1.0,
+          "transmissionTexture": {
+            "index": 3
+          }
+        }
+      },
+      "name": "Wall_clock_glass",
+      "normalTexture": {
+        "index": 2
+      },
+      "occlusionTexture": {
+        "index": 1
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "wall_clock_Wall_clock_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3
+          },
+          "indices": 4,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "wall_clock_arrow_minutes_Wall_clock_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 6,
+            "POSITION": 5,
+            "TANGENT": 7,
+            "TEXCOORD_0": 8
+          },
+          "indices": 9,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "wall_clock_pendulum_Wall_clock_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 11,
+            "POSITION": 10,
+            "TANGENT": 12,
+            "TEXCOORD_0": 13
+          },
+          "indices": 14,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "wall_clock_arrow_hour_Wall_clock_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 16,
+            "POSITION": 15,
+            "TANGENT": 17,
+            "TEXCOORD_0": 18
+          },
+          "indices": 19,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "wall_clock_glass_Wall_clock_glass_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 21,
+            "POSITION": 20,
+            "TANGENT": 22,
+            "TEXCOORD_0": 23
+          },
+          "indices": 24,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.2204459996194763e-18,
+        -0.009999999776482582,
+        0.0,
+        0.0,
+        0.009999999776482582,
+        2.2204459996194763e-18,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "wall_clock.fbx"
+    },
+    {
+      "children": [
+        3
+      ],
+      "name": "Object_2"
+    },
+    {
+      "children": [
+        4
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        5,
+        6,
+        8,
+        10,
+        12
+      ],
+      "name": "wall_clock"
+    },
+    {
+      "mesh": 0,
+      "name": "wall_clock_Wall_clock_0"
+    },
+    {
+      "children": [
+        7
+      ],
+      "name": "wall_clock_arrow_minutes",
+      "translation": [
+        0.0,
+        0.0,
+        -2.083225965499878
+      ]
+    },
+    {
+      "mesh": 1,
+      "name": "wall_clock_arrow_minutes_Wall_clock_0"
+    },
+    {
+      "children": [
+        9
+      ],
+      "name": "wall_clock_pendulum",
+      "rotation": [
+        0.0,
+        -0.0,
+        -0.06052123010158539,
+        0.9981669187545776
+      ],
+      "translation": [
+        -0.00010251998901367188,
+        38.0959358215332,
+        0.032843589782714844
+      ]
+    },
+    {
+      "mesh": 2,
+      "name": "wall_clock_pendulum_Wall_clock_0"
+    },
+    {
+      "children": [
+        11
+      ],
+      "name": "wall_clock_arrow_hour",
+      "translation": [
+        0.0,
+        0.0,
+        -2.083225965499878
+      ]
+    },
+    {
+      "mesh": 3,
+      "name": "wall_clock_arrow_hour_Wall_clock_0"
+    },
+    {
+      "children": [
+        13
+      ],
+      "name": "wall_clock_glass"
+    },
+    {
+      "mesh": 4,
+      "name": "wall_clock_glass_Wall_clock_glass_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    }
+  ]
+}
