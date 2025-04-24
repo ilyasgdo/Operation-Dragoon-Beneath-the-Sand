@@ -72,7 +72,7 @@ namespace BigRookGames.Weapons
         {
             // Appliquer la vitesse initiale dans la direction avant du projectile
             // Utiliser la rotation actuelle du projectile pour déterminer la direction
-            rb.velocity = transform.forward * projectileSpeed;
+            rb.linearVelocity = transform.forward * projectileSpeed;
             
             // Ajouter un effet visuel pour rendre le projectile plus visible
             if (GetComponent<Renderer>() == null)
@@ -173,13 +173,13 @@ namespace BigRookGames.Weapons
         private void Update()
         {
             // Visualiser la trajectoire du projectile en mode débogage
-            Debug.DrawRay(transform.position, rb.velocity.normalized * 2.0f, Color.red);
+            Debug.DrawRay(transform.position, rb.linearVelocity.normalized * 2.0f, Color.red);
             
             // Vérifier si le projectile se déplace correctement
-            if (rb.velocity.magnitude < projectileSpeed * 0.5f)
+            if (rb.linearVelocity.magnitude < projectileSpeed * 0.5f)
             {
                 // Si la vitesse est trop basse, réappliquer la vitesse initiale
-                rb.velocity = transform.forward * projectileSpeed;
+                rb.linearVelocity = transform.forward * projectileSpeed;
                 Debug.LogWarning("Vitesse du projectile corrigée");
             }
         }
