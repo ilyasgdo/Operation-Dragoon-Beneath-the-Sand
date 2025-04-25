@@ -91,12 +91,33 @@ namespace BigRookGames.Weapons
             // --- Shoot Projectile Object ---
             if (projectilePrefab != null)
             {
-                // Instancier le projectile à la position du muzzle avec la rotation correcte
-                // Utiliser la rotation du muzzle pour s'assurer que le projectile va dans la bonne direction
-                GameObject newProjectile = Instantiate(projectilePrefab, muzzlePosition.transform.position, muzzlePosition.transform.rotation);
+                // Obtenir la caméra principale pour aligner le tir avec la vue du joueur
+                Camera mainCamera = Camera.main;
                 
-                // S'assurer que le projectile est correctement orienté dans la direction de tir
-                newProjectile.transform.forward = muzzlePosition.transform.forward;
+                // Instancier le projectile à la position du muzzle
+                GameObject newProjectile = Instantiate(projectilePrefab, muzzlePosition.transform.position, Quaternion.identity);
+                
+                // Orienter le projectile dans la direction de la caméra si elle existe
+                if (mainCamera != null)
+                {
+                    // Utiliser la direction de la caméra pour orienter le projectile
+                    newProjectile.transform.forward = mainCamera.transform.forward;
+                    Debug.Log("Projectile orienté selon la caméra");
+                }
+                else
+                {
+                    // Sinon, utiliser la direction du muzzle
+                    newProjectile.transform.forward = muzzlePosition.transform.forward;
+                    
+                    // Vérifier si le projectile est mal orienté (si le forward pointe vers le haut ou la droite)
+                    if (Vector3.Dot(newProjectile.transform.forward, Vector3.up) > 0.9f || 
+                        Vector3.Dot(newProjectile.transform.forward, Vector3.right) > 0.9f)
+                    {
+                        // Réorienter le projectile pour qu'il parte vers l'avant
+                        newProjectile.transform.forward = transform.forward;
+                        Debug.Log("Correction de l'orientation du projectile appliquée");
+                    }
+                }
                 
                 // Ajouter le contrôleur de projectile s'il n'existe pas déjà
                 ProjectileController projectileController = newProjectile.GetComponent<ProjectileController>();
