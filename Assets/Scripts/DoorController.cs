@@ -9,6 +9,7 @@ public class DoorController : MonoBehaviour
     public float rotationSpeed = 2f;
     public Vector3 rotationAxis = Vector3.up;
     public float raycastDistance = 3f;
+    public Transform doorPivot; // Point de pivot de la porte
     
     [Header("Configuration Audio")]
     public AudioSource audioSource;
@@ -19,6 +20,7 @@ public class DoorController : MonoBehaviour
     
     [Header("Débogage")]
     public bool showDebugRay = true;
+    public LayerMask raycastLayers = -1; // Tous les layers par défaut
     
     private bool isOpen = false;
     private bool isRotating = false;
@@ -27,7 +29,13 @@ public class DoorController : MonoBehaviour
     
     void Start()
     {
-        initialRotation = transform.rotation;
+        // Si aucun pivot n'est spécifié, utiliser cet objet
+        if (doorPivot == null)
+        {
+            doorPivot = transform;
+        }
+        
+        initialRotation = doorPivot.rotation;
         targetRotation = Quaternion.Euler(rotationAxis * openAngle) * initialRotation;
         
         Debug.Log("Porte initialisée. Rotation initiale: " + initialRotation.eulerAngles);
@@ -91,12 +99,13 @@ public class DoorController : MonoBehaviour
         RaycastHit hit;
         
         // Vérifier si le rayon touche quelque chose
-        if (Physics.Raycast(ray, out hit, raycastDistance))
+        if (Physics.Raycast(ray, out hit, raycastDistance, raycastLayers))
         {
             Debug.Log("Rayon a touché: " + hit.transform.name + " à distance: " + hit.distance);
             
             // Vérifier si c'est cette porte ou un de ses enfants
-            if (hit.transform == transform || hit.transform.IsChildOf(transform))
+            if (hit.transform == transform || hit.transform.IsChildOf(transform) || 
+                (doorPivot != transform && (hit.transform == doorPivot || hit.transform.IsChildOf(doorPivot))))
             {
                 Debug.Log("Porte détectée! Ouverture/fermeture...");
                 ToggleDoor();
@@ -137,12 +146,12 @@ public class DoorController : MonoBehaviour
         Quaternion targetRot = isOpen ? targetRotation : initialRotation;
         
         // Effectuer la rotation progressive
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * rotationSpeed);
+        doorPivot.rotation = Quaternion.Slerp(doorPivot.rotation, targetRot, Time.deltaTime * rotationSpeed);
         
         // Vérifier si la rotation est terminée
-        if (Quaternion.Angle(transform.rotation, targetRot) < 0.1f)
+        if (Quaternion.Angle(doorPivot.rotation, targetRot) < 0.1f)
         {
-            transform.rotation = targetRot;
+            doorPivot.rotation = targetRot;
             isRotating = false;
             Debug.Log("Animation de porte terminée");
         }
