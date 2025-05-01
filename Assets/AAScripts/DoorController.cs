@@ -30,6 +30,12 @@ public class DoorController : MonoBehaviour
     public float resetCodeTime = 5f; // Temps avant réinitialisation du code saisi
     private float lastInputTime; // Dernière fois qu'un chiffre a été saisi
     
+    [Header("Système d'Objectifs")]
+    public string doorId = "porte_principale"; // Identifiant unique de la porte
+    public SystemeObjectifs systemeObjectifs; // Référence au système d'objectifs
+    public bool estObjectif = false; // Si trouver le code de cette porte est un objectif
+    private bool objectifComplete = false; // Si l'objectif a été complété
+    
     [Header("Débogage")]
     public bool showDebugRay = true;
     public LayerMask raycastLayers = -1; // Tous les layers par défaut
@@ -89,6 +95,13 @@ public class DoorController : MonoBehaviour
         
         // Initialiser le temps de dernière saisie
         lastInputTime = Time.time;
+        
+        // Créer l'objectif pour cette porte si nécessaire
+        if (estObjectif && systemeObjectifs != null)
+        {
+            string idObjectif = "trouver_code_" + doorId;
+            systemeObjectifs.AjouterObjectif(idObjectif, "Trouver le code de la porte: " + doorId);
+        }
     }
     
     void Update()
@@ -252,9 +265,14 @@ public class DoorController : MonoBehaviour
     // Valide le code entré
     void ValidateCode()
     {
+        Debug.Log("Validation du code: " + currentInputCode + " vs " + correctCode);
+        
+        // Vérifier si le code est correct
         if (currentInputCode == correctCode)
         {
-            Debug.Log("Code correct! Déverrouillage de la porte.");
+            Debug.Log("Code correct!");
+            
+            // Déverrouiller la porte
             isLocked = false;
             
             // Jouer le son de déverrouillage
@@ -264,14 +282,22 @@ public class DoorController : MonoBehaviour
                 audioSource.Play();
             }
             
-            // Ouvrir la porte automatiquement après déverrouillage
+            // Compléter l'objectif si c'est un objectif et que ce n'est pas déjà complété
+            if (estObjectif && !objectifComplete && systemeObjectifs != null)
+            {
+                string idObjectif = "trouver_code_" + doorId;
+                systemeObjectifs.CompleterObjectif(idObjectif);
+                objectifComplete = true;
+            }
+            
+            // Ouvrir la porte automatiquement
             ToggleDoor();
         }
         else
         {
-            Debug.Log("Code incorrect! La porte reste verrouillée.");
+            Debug.Log("Code incorrect!");
             
-            // Jouer le son d'erreur de code
+            // Jouer le son d'erreur
             if (audioSource != null && codeErrorSound != null)
             {
                 audioSource.clip = codeErrorSound;
@@ -280,7 +306,7 @@ public class DoorController : MonoBehaviour
         }
         
         // Réinitialiser le code après validation
-        ResetCode();
+        currentInputCode = "";
     }
     
     // Réinitialise le code actuel
