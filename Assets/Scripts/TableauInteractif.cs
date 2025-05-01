@@ -37,6 +37,13 @@ public class TableauInteractif : MonoBehaviour
     [Tooltip("Champ de vision en mode zoom")]
     public float zoomFOV = 30f;
     
+    [Header("Interface Utilisateur")]
+    [Tooltip("Texte à afficher pour indiquer comment quitter l'interaction")]
+    public string texteQuitter = "Appuyez sur ÉCHAP pour quitter";
+    
+    [Tooltip("Taille du texte d'instruction")]
+    public int tailleTexte = 20;
+    
     // Variables privées
     private bool isPlayerNearby = false;
     private bool isInteracting = false;
@@ -47,6 +54,7 @@ public class TableauInteractif : MonoBehaviour
     private PlayerInput playerInput;
     private Rigidbody playerRigidbody;
     private MonoBehaviour[] playerMovementScripts; // Pour stocker tous les scripts de mouvement potentiels
+    private GUIStyle styleTexte;
     
     // Awake est appelé lorsque le script est initialisé
     void Awake()
@@ -65,6 +73,13 @@ public class TableauInteractif : MonoBehaviour
                 audioSource.volume = volumeNarration;
             }
         }
+        
+        // Initialiser le style de texte
+        styleTexte = new GUIStyle();
+        styleTexte.fontSize = tailleTexte;
+        styleTexte.normal.textColor = Color.white;
+        styleTexte.alignment = TextAnchor.MiddleCenter;
+        styleTexte.fontStyle = FontStyle.Bold;
     }
     
     // Update est appelé une fois par frame
@@ -293,6 +308,31 @@ public class TableauInteractif : MonoBehaviour
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(transform.position, zoomTarget.position);
             Gizmos.DrawSphere(zoomTarget.position, 0.1f);
+        }
+    }
+    
+    // Afficher le texte d'instruction à l'écran
+    void OnGUI()
+    {
+        // Afficher le texte d'instruction uniquement pendant l'interaction
+        if (isInteracting)
+        {
+            // Créer un fond semi-transparent pour le texte
+            GUI.backgroundColor = new Color(0, 0, 0, 0.5f);
+            
+            // Calculer la position du texte (centré en bas de l'écran)
+            float largeurTexte = 300;
+            float hauteurTexte = 30;
+            Rect positionTexte = new Rect(
+                (Screen.width - largeurTexte) / 2,
+                Screen.height - hauteurTexte - 50,
+                largeurTexte,
+                hauteurTexte
+            );
+            
+            // Dessiner le texte avec une ombre pour meilleure lisibilité
+            GUI.Box(positionTexte, "");
+            GUI.Label(positionTexte, texteQuitter, styleTexte);
         }
     }
 }
