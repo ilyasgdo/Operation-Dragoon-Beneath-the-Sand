@@ -1,0 +1,11 @@
+Model Information:
+* title:	LCVP Higgins Boat
+* source:	https://sketchfab.com/3d-models/lcvp-higgins-boat-e2edab27282d415db2351a47d164744b
+* author:	Thomas Visonà (https://sketchfab.com/TakeAndPlay)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "LCVP Higgins Boat" (https://sketchfab.com/3d-models/lcvp-higgins-boat-e2edab27282d415db2351a47d164744b) by Thomas Visonà (https://sketchfab.com/TakeAndPlay) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,0 +1,67 @@
+fileFormatVersion: 2
+guid: b08426c8efa551696a9ac9e318d505b4
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 715df9372183c47e389bb6e19fbc3b52, type: 3}
+  editorImportSettings:
+    generateSecondaryUVSet: 0
+  importSettings:
+    nodeNameMethod: 1
+    animationMethod: 2
+    generateMipMaps: 1
+    texturesReadable: 0
+    defaultMinFilterMode: 9729
+    defaultMagFilterMode: 9729
+    anisotropicFilterLevel: 1
+  instantiationSettings:
+    mask: -1
+    layer: 0
+    skinUpdateWhenOffscreen: 1
+    lightIntensityFactor: 1
+    sceneObjectCreation: 2
+  assetDependencies:
+  - type: 0
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/scene.bin
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/scene.bin
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/LCVP_baseColor.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/LCVP_baseColor.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/LCVP_metallicRoughness.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/LCVP_metallicRoughness.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/LCVP_normal.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/LCVP_normal.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/cable_baseColor.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/cable_baseColor.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/cable_metallicRoughness.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/cable_metallicRoughness.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/cable_normal.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/cable_normal.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_strips_baseColor.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_strips_baseColor.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_strips_metallicRoughness.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_strips_metallicRoughness.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_strips_normal.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_strips_normal.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_baseColor.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_baseColor.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_metallicRoughness.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_metallicRoughness.png
+  - type: 1
+    originalUri: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_normal.png
+    assetPath: Assets/ScenesAssets/Scene1B/lcvp_higgins_boat/textures/lifesaver_normal.png
+  reportItems: []
