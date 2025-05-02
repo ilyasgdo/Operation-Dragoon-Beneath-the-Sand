@@ -196,6 +196,19 @@ MonoBehaviour:
   joint: {fileID: 4459864851508666808}
   bobSpeed: 10
   bobAmount: {x: 0, y: 0.1, z: 0}
+  enablePTSDEffects: 1
+  minTimeBetweenFlashbacks: 30
+  maxTimeBetweenFlashbacks: 120
+  flashbackDuration: 5
+  timeSlowdownFactor: 0.2
+  movementSlowdownFactor: 0.15
+  cameraShakeIntensity: 0.12
+  vignettingIntensity: 0.7
+  muteSoundsOnFlashback: 1
+  flashbackVideos: []
+  ptsdSoundEffect: {fileID: 0}
+  ptsdSoundVolume: 0.8
+  flashbackColor: {r: 1, g: 0, b: 0, a: 0.3}
 --- !u!1 &4459864850190357393
 GameObject:
   m_ObjectHideFlags: 0

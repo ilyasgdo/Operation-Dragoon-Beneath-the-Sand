@@ -199,7 +199,10 @@ public class VolumetricLight : MonoBehaviour
 
     void Update()
     {
-        _commandBuffer.Clear();
+        if (_commandBuffer != null)
+        {
+            _commandBuffer.Clear();
+        }
     }
 
     /// <summary>
@@ -209,6 +212,9 @@ public class VolumetricLight : MonoBehaviour
     /// <param name="viewProj"></param>
     private void SetupPointLight(VolumetricLightRenderer renderer, Matrix4x4 viewProj)
     {
+        if (Camera.current == null)
+            return;
+            
         int pass = 0;
         if (!IsCameraInPointLightBounds())
             pass = 2;
@@ -279,6 +285,9 @@ public class VolumetricLight : MonoBehaviour
     /// <param name="viewProj"></param>
     private void SetupSpotLight(VolumetricLightRenderer renderer, Matrix4x4 viewProj)
     {        
+        if (Camera.current == null)
+            return;
+            
         int pass = 1;
         if (!IsCameraInSpotLightBounds())
         {
@@ -383,6 +392,9 @@ public class VolumetricLight : MonoBehaviour
     /// <param name="viewProj"></param>
     private void SetupDirectionalLight(VolumetricLightRenderer renderer, Matrix4x4 viewProj)
     {
+        if (Camera.current == null)
+            return;
+            
         int pass = 4;
 
         _material.SetPass(pass);
@@ -453,6 +465,9 @@ public class VolumetricLight : MonoBehaviour
     /// <returns></returns>
     private bool IsCameraInPointLightBounds()
     {
+        if (Camera.current == null)
+            return false;
+            
         float distanceSqr = (_light.transform.position - Camera.current.transform.position).sqrMagnitude;
         float extendedRange = _light.range + 1;
         if (distanceSqr < (extendedRange * extendedRange))
@@ -466,6 +481,9 @@ public class VolumetricLight : MonoBehaviour
     /// <returns></returns>
     private bool IsCameraInSpotLightBounds()
     {
+        if (Camera.current == null)
+            return false;
+            
         // check range
         float distance = Vector3.Dot(_light.transform.forward, (Camera.current.transform.position - _light.transform.position));
         float extendedRange = _light.range + 1;

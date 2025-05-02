@@ -21,6 +21,12 @@ public class TableauInteractif : MonoBehaviour
     [Range(0f, 1f)]
     public float volumeNarration = 1.0f;
     
+    [Tooltip("Distance maximale à laquelle le son est audible")]
+    public float distanceAudible = 5.0f;
+    
+    [Tooltip("Continuer à jouer le son même si le joueur quitte l'interaction")]
+    public bool continuerNarrationEnSortant = true;
+    
     [Header("Animation de Caméra")]
     [Tooltip("La caméra du joueur qui sera animée")]
     public Camera playerCamera;
@@ -69,9 +75,20 @@ public class TableauInteractif : MonoBehaviour
             {
                 audioSource = gameObject.AddComponent<AudioSource>();
                 audioSource.playOnAwake = false;
-                audioSource.spatialBlend = 0f; // Son 2D pour la narration
+                audioSource.spatialBlend = 1f; // Son 3D pour la narration spatiale
                 audioSource.volume = volumeNarration;
+                audioSource.rolloffMode = AudioRolloffMode.Linear; // Mode d'atténuation linéaire
+                audioSource.maxDistance = distanceAudible;
+                audioSource.minDistance = 1.0f;
             }
+        }
+        else
+        {
+            // Configurer l'AudioSource existante pour le son 3D
+            audioSource.spatialBlend = 1f;
+            audioSource.rolloffMode = AudioRolloffMode.Linear;
+            audioSource.maxDistance = distanceAudible;
+            audioSource.minDistance = 1.0f;
         }
         
         // Initialiser le style de texte
@@ -109,6 +126,16 @@ public class TableauInteractif : MonoBehaviour
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 StopInteraction();
+            }
+        }
+        
+        // Gérer le volume de la narration en fonction de la distance si on n'est plus en interaction
+        if (!isInteracting && audioSource.isPlaying && !continuerNarrationEnSortant)
+        {
+            // Si le joueur n'est plus à proximité et que l'option est désactivée, arrêter la narration
+            if (!isPlayerNearby)
+            {
+                audioSource.Stop();
             }
         }
     }
@@ -206,6 +233,12 @@ public class TableauInteractif : MonoBehaviour
         
         // Réactiver les contrôles du joueur
         EnablePlayerMovement();
+        
+        // Si l'option de continuer la narration est désactivée et que le joueur n'est pas à proximité, arrêter le son
+        if (!continuerNarrationEnSortant && !isPlayerNearby && audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
     }
     
     // Désactiver tous les composants de mouvement du joueur

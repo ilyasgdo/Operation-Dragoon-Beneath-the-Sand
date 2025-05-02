@@ -133,6 +133,38 @@ public class FirstPersonController : MonoBehaviour
 
     #endregion
 
+    #region Effets Réalistes FPS
+
+    [Header("Corps et Mouvements Réalistes")]
+    // Respiration en idle
+    public bool enableBreathing = true;
+    [Range(0.01f, 0.1f)]
+    public float breathingIntensity = 0.03f;
+    public float breathingSpeed = 1.2f;
+    private float breathingTimer = 0f;
+
+    // Inclinaison dans les virages
+    public bool enableLeanInTurns = true;
+    [Range(0.1f, 5f)]
+    public float leanAngle = 2f;
+    [Range(0.1f, 5f)]
+    public float leanSpeed = 1f;
+    private float currentLeanAngle = 0f;
+    private Vector3 lastMoveDirection = Vector3.zero;
+
+    // Vision trouble après course
+    public bool enableBlurredVision = true;
+    [Range(0.1f, 10f)]
+    public float blurRecoverySpeed = 1f;
+    [Range(0.01f, 1f)]
+    public float maxBlurAmount = 0.5f;
+    private float currentBlurAmount = 0f;
+    private PostProcessVolume postProcessVolume;
+    private Vignette vignetteEffect;
+    private float lastSprintTime = 0f;
+
+    #endregion
+
     #region PTSD Effects
     
     [Header("Troubles Post-Traumatiques")]
@@ -203,6 +235,9 @@ public class FirstPersonController : MonoBehaviour
             originalFixedDeltaTime = Time.fixedDeltaTime;
             ScheduleNextFlashback();
         }
+        
+        // Configuration des effets réalistes
+        SetupRealisticEffects();
     }
 
     // Configurateur automatique du système PTSD
@@ -436,6 +471,29 @@ public class FirstPersonController : MonoBehaviour
         #endregion
         #endregion
 
+        #region Blurred Vision Effect
+        
+        // Gestion de l'effet de vision trouble
+        if (enableBlurredVision && currentBlurAmount > 0)
+        {
+            // Récupération du temps écoulé depuis le dernier sprint
+            float timeSinceLastSprint = Time.time - lastSprintTime;
+            
+            // Diminution progressive de l'effet
+            if (timeSinceLastSprint > 0.5f) // Petit délai avant que l'effet commence à diminuer
+            {
+                currentBlurAmount = Mathf.Max(0, currentBlurAmount - Time.deltaTime * blurRecoverySpeed);
+            }
+            
+            // Application de l'effet visuel (vignettage)
+            if (vignetteEffect != null)
+            {
+                vignetteEffect.intensity.Override(currentBlurAmount);
+            }
+        }
+        
+        #endregion
+
         #region Sprint
 
         if(enableSprint)
@@ -667,8 +725,37 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    private void SetupRealisticEffects()
+    {
+        // Recherche du volume post-processing pour les effets visuels
+        postProcessVolume = FindObjectOfType<PostProcessVolume>();
+        
+        if (postProcessVolume != null)
+        {
+            // Récupération ou création des effets de post-processing
+            postProcessVolume.profile.TryGetSettings(out vignetteEffect);
+            
+            if (vignetteEffect == null && enableBlurredVision)
+            {
+                // Création du vignettage pour l'effet de vision trouble
+                vignetteEffect = ScriptableObject.CreateInstance<Vignette>();
+                vignetteEffect.enabled.Override(true);
+                vignetteEffect.intensity.Override(0f);
+                vignetteEffect.smoothness.Override(0.2f);
+                vignetteEffect.color.Override(new Color(0, 0, 0, 1));
+                postProcessVolume.profile.AddSettings(vignetteEffect);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Aucun PostProcessVolume trouvé. Les effets visuels ne fonctionneront pas.");
+        }
+    }
+
     private void HeadBob()
     {
+        Vector3 finalPosition = jointOriginalPos;
+        
         if(isWalking)
         {
             // Calculates HeadBob speed during sprint
@@ -686,14 +773,84 @@ public class FirstPersonController : MonoBehaviour
             {
                 timer += Time.deltaTime * bobSpeed;
             }
-            // Applies HeadBob movement
-            joint.localPosition = new Vector3(jointOriginalPos.x + Mathf.Sin(timer) * bobAmount.x, jointOriginalPos.y + Mathf.Sin(timer) * bobAmount.y, jointOriginalPos.z + Mathf.Sin(timer) * bobAmount.z);
+            // Applies HeadBob movement (plus subtle, especially on X and Z)
+            finalPosition += new Vector3(
+                Mathf.Sin(timer) * bobAmount.x * 0.7f,  // Reduced X movement
+                Mathf.Sin(timer) * bobAmount.y,
+                Mathf.Sin(timer) * bobAmount.z * 0.7f   // Reduced Z movement
+            );
+            
+            // Si l'effet de vision trouble est activé, on le déclenche après un sprint
+            if (enableBlurredVision && isSprinting)
+            {
+                lastSprintTime = Time.time;
+                currentBlurAmount = maxBlurAmount;
+            }
         }
         else
         {
-            // Resets when play stops moving
+            // Respiration en idle quand on ne bouge pas
+            if (enableBreathing && isGrounded)
+            {
+                breathingTimer += Time.deltaTime * breathingSpeed;
+                
+                // Mouvement vertical subtil pour la respiration
+                finalPosition += new Vector3(
+                    0f, 
+                    Mathf.Sin(breathingTimer) * breathingIntensity,
+                    0f
+                );
+            }
+            
+            // Resets walking timer
             timer = 0;
-            joint.localPosition = new Vector3(Mathf.Lerp(joint.localPosition.x, jointOriginalPos.x, Time.deltaTime * bobSpeed), Mathf.Lerp(joint.localPosition.y, jointOriginalPos.y, Time.deltaTime * bobSpeed), Mathf.Lerp(joint.localPosition.z, jointOriginalPos.z, Time.deltaTime * bobSpeed));
+        }
+        
+        // Applique l'inclinaison dans les virages
+        ApplyLeanInTurns();
+        
+        // Interpolation douce vers la position finale
+        joint.localPosition = Vector3.Lerp(joint.localPosition, finalPosition, Time.deltaTime * bobSpeed);
+    }
+
+    private void ApplyLeanInTurns()
+    {
+        if (enableLeanInTurns && isWalking)
+        {
+            // Récupère la direction horizontale
+            Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")).normalized;
+            
+            // Calcule la rotation de la caméra basée sur le changement de direction
+            if (moveDirection.magnitude > 0.1f)
+            {
+                // Détection d'un virage (changement de direction)
+                float turnAmount = Vector3.SignedAngle(
+                    lastMoveDirection, 
+                    moveDirection, 
+                    Vector3.up
+                );
+                
+                // Limite la valeur max de l'inclinaison
+                turnAmount = Mathf.Clamp(turnAmount * 0.1f, -leanAngle, leanAngle);
+                
+                // Interpolation douce vers l'angle cible
+                currentLeanAngle = Mathf.Lerp(currentLeanAngle, turnAmount, Time.deltaTime * leanSpeed);
+                
+                // Mémorise la direction pour le prochain frame
+                lastMoveDirection = moveDirection;
+            }
+            else
+            {
+                // Retour progressif à zéro quand pas de mouvement
+                currentLeanAngle = Mathf.Lerp(currentLeanAngle, 0, Time.deltaTime * leanSpeed * 2);
+            }
+            
+            // Applique l'inclinaison à la caméra (rotation en Z)
+            playerCamera.transform.localRotation = Quaternion.Euler(
+                playerCamera.transform.localEulerAngles.x,
+                playerCamera.transform.localEulerAngles.y,
+                currentLeanAngle
+            );
         }
     }
 
@@ -1232,6 +1389,40 @@ public class FirstPersonController : MonoBehaviour
         GUI.enabled = true;
 
         EditorGUILayout.Space();
+
+        #endregion
+
+        #region Corps et Mouvements Réalistes
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+        GUILayout.Label("Corps et Mouvements Réalistes", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, fontSize = 13 }, GUILayout.ExpandWidth(true));
+        EditorGUILayout.Space();
+
+        // Respiration
+        fpc.enableBreathing = EditorGUILayout.ToggleLeft(new GUIContent("Respiration en Idle", "Active l'effet de respiration quand le joueur ne bouge pas."), fpc.enableBreathing);
+        GUI.enabled = fpc.enableBreathing;
+        fpc.breathingIntensity = EditorGUILayout.Slider(new GUIContent("Intensité Respiration", "Intensité du mouvement de respiration."), fpc.breathingIntensity, 0.01f, 0.1f);
+        fpc.breathingSpeed = EditorGUILayout.Slider(new GUIContent("Vitesse Respiration", "Vitesse du cycle de respiration."), fpc.breathingSpeed, 0.5f, 2f);
+        GUI.enabled = true;
+
+        EditorGUILayout.Space();
+
+        // Inclinaison caméra
+        fpc.enableLeanInTurns = EditorGUILayout.ToggleLeft(new GUIContent("Inclinaison dans les Virages", "La caméra s'incline légèrement lors des virages."), fpc.enableLeanInTurns);
+        GUI.enabled = fpc.enableLeanInTurns;
+        fpc.leanAngle = EditorGUILayout.Slider(new GUIContent("Angle d'Inclinaison", "Angle maximum d'inclinaison dans les virages."), fpc.leanAngle, 0.1f, 5f);
+        fpc.leanSpeed = EditorGUILayout.Slider(new GUIContent("Vitesse d'Inclinaison", "Vitesse de transition de l'inclinaison."), fpc.leanSpeed, 0.1f, 5f);
+        GUI.enabled = true;
+
+        EditorGUILayout.Space();
+
+        // Vision trouble
+        fpc.enableBlurredVision = EditorGUILayout.ToggleLeft(new GUIContent("Vision Trouble après Course", "Effet de vision trouble après un sprint ou pendant un stress."), fpc.enableBlurredVision);
+        GUI.enabled = fpc.enableBlurredVision;
+        fpc.maxBlurAmount = EditorGUILayout.Slider(new GUIContent("Intensité Maximale", "Intensité maximale de l'effet de vision trouble."), fpc.maxBlurAmount, 0.01f, 1f);
+        fpc.blurRecoverySpeed = EditorGUILayout.Slider(new GUIContent("Vitesse de Récupération", "Vitesse à laquelle la vision redevient normale."), fpc.blurRecoverySpeed, 0.1f, 10f);
+        GUI.enabled = true;
 
         #endregion
 
