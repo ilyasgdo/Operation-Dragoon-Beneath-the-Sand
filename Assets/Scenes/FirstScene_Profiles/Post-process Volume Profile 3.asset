@@ -1447,7 +1447,7 @@ MonoBehaviour:
     value: 0
   shutterAngle:
     overrideState: 1
-    value: 122
+    value: 108
   sampleCount:
     overrideState: 0
     value: 10
@@ -1478,7 +1478,7 @@ MonoBehaviour:
     value: {x: 0.5, y: 0.5}
   intensity:
     overrideState: 1
-    value: 0.296
+    value: 1
   smoothness:
     overrideState: 0
     value: 0.2
