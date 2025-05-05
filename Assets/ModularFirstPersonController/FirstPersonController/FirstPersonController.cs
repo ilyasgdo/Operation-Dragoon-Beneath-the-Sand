@@ -162,6 +162,18 @@ public class FirstPersonController : MonoBehaviour
     private PostProcessVolume postProcessVolume;
     private Vignette vignetteEffect;
     private float lastSprintTime = 0f;
+    
+    // Système d'animations de marche/course
+    [Header("Animations de Marche")]
+    public bool enableWalkingAnimation = true;
+    public Animation walkAnimation;
+    public AnimationClip walkForwardClip;
+    public AnimationClip runForwardClip;
+    public AnimationClip idleClip;
+    public AnimationClip crouchClip;
+    public AnimationClip jumpClip;
+    public float animationBlendSpeed = 0.15f;
+    private string currentAnimationState = "";
 
     #endregion
 
@@ -238,6 +250,80 @@ public class FirstPersonController : MonoBehaviour
         
         // Configuration des effets réalistes
         SetupRealisticEffects();
+        
+        // Initialisation des animations
+        SetupAnimations();
+    }
+
+    // Initialisation et configuration du système d'animations
+    private void SetupAnimations()
+    {
+        if (!enableWalkingAnimation) return;
+        
+        // Vérifier que le composant Animation existe
+        if (walkAnimation == null)
+        {
+            // Essayer de récupérer le composant sur cet objet
+            walkAnimation = GetComponent<Animation>();
+            
+            // Si toujours pas de composant, essayer de l'ajouter
+            if (walkAnimation == null && (walkForwardClip != null || runForwardClip != null))
+            {
+                walkAnimation = gameObject.AddComponent<Animation>();
+                Debug.Log("Composant Animation ajouté automatiquement");
+            }
+        }
+        
+        // Configuration des clips d'animation
+        if (walkAnimation != null)
+        {
+            // Ajout des clips au composant Animation s'ils sont définis
+            if (walkForwardClip != null && !walkAnimation.GetClip(walkForwardClip.name))
+            {
+                walkAnimation.AddClip(walkForwardClip, walkForwardClip.name);
+                walkAnimation[walkForwardClip.name].layer = 0;
+                walkAnimation[walkForwardClip.name].wrapMode = WrapMode.Loop;
+            }
+            
+            if (runForwardClip != null && !walkAnimation.GetClip(runForwardClip.name))
+            {
+                walkAnimation.AddClip(runForwardClip, runForwardClip.name);
+                walkAnimation[runForwardClip.name].layer = 0;
+                walkAnimation[runForwardClip.name].wrapMode = WrapMode.Loop;
+            }
+            
+            if (idleClip != null && !walkAnimation.GetClip(idleClip.name))
+            {
+                walkAnimation.AddClip(idleClip, idleClip.name);
+                walkAnimation[idleClip.name].layer = 0;
+                walkAnimation[idleClip.name].wrapMode = WrapMode.Loop;
+            }
+            
+            if (crouchClip != null && !walkAnimation.GetClip(crouchClip.name))
+            {
+                walkAnimation.AddClip(crouchClip, crouchClip.name);
+                walkAnimation[crouchClip.name].layer = 0;
+                walkAnimation[crouchClip.name].wrapMode = WrapMode.Loop;
+            }
+            
+            if (jumpClip != null && !walkAnimation.GetClip(jumpClip.name))
+            {
+                walkAnimation.AddClip(jumpClip, jumpClip.name);
+                walkAnimation[jumpClip.name].layer = 0;
+                walkAnimation[jumpClip.name].wrapMode = WrapMode.Once;
+            }
+            
+            // Jouer l'animation idle par défaut
+            if (idleClip != null)
+            {
+                walkAnimation.Play(idleClip.name);
+                currentAnimationState = idleClip.name;
+            }
+        }
+        else if (enableWalkingAnimation)
+        {
+            Debug.LogWarning("Le composant Animation est manquant et n'a pas pu être créé. Les animations ne fonctionneront pas.");
+        }
     }
 
     // Configurateur automatique du système PTSD
@@ -590,6 +676,12 @@ public class FirstPersonController : MonoBehaviour
         {
             StartCoroutine(TriggerPTSDFlashback());
         }
+        
+        // Mise à jour des animations
+        if (enableWalkingAnimation && walkAnimation != null)
+        {
+            UpdateAnimations();
+        }
     }
 
     void FixedUpdate()
@@ -694,6 +786,13 @@ public class FirstPersonController : MonoBehaviour
         {
             rb.AddForce(0f, jumpPower, 0f, ForceMode.Impulse);
             isGrounded = false;
+            
+            // Jouer l'animation de saut si elle est disponible
+            if (enableWalkingAnimation && walkAnimation != null && jumpClip != null)
+            {
+                walkAnimation.Play(jumpClip.name);
+                currentAnimationState = jumpClip.name;
+            }
         }
 
         // When crouched and using toggle system, will uncrouch for a jump
@@ -713,6 +812,21 @@ public class FirstPersonController : MonoBehaviour
             walkSpeed /= speedReduction;
 
             isCrouched = false;
+            
+            // Revenir à l'animation par défaut (idle ou marche)
+            if (enableWalkingAnimation && walkAnimation != null)
+            {
+                if (isWalking)
+                {
+                    walkAnimation.CrossFade(walkForwardClip.name, animationBlendSpeed);
+                    currentAnimationState = walkForwardClip.name;
+                }
+                else
+                {
+                    walkAnimation.CrossFade(idleClip.name, animationBlendSpeed);
+                    currentAnimationState = idleClip.name;
+                }
+            }
         }
         // Crouches player down to set height
         // Reduces walkSpeed
@@ -722,6 +836,13 @@ public class FirstPersonController : MonoBehaviour
             walkSpeed *= speedReduction;
 
             isCrouched = true;
+            
+            // Jouer l'animation d'accroupissement si disponible
+            if (enableWalkingAnimation && walkAnimation != null && crouchClip != null)
+            {
+                walkAnimation.CrossFade(crouchClip.name, animationBlendSpeed);
+                currentAnimationState = crouchClip.name;
+            }
         }
     }
 
@@ -1161,6 +1282,73 @@ public class FirstPersonController : MonoBehaviour
         ptsdAudioSource.volume = ptsdSoundVolume;
         ptsdAudioSource.Play();
     }
+
+    private void UpdateAnimations()
+    {
+        if (walkAnimation == null) return;
+        
+        string targetAnimation = "";
+        
+        // Déterminer quelle animation doit être jouée selon l'état actuel
+        if (!isGrounded && jumpClip != null)
+        {
+            // Si on est en l'air et qu'on n'est pas déjà en train de sauter
+            if (currentAnimationState != jumpClip.name)
+            {
+                targetAnimation = jumpClip.name;
+            }
+        }
+        else if (isCrouched && crouchClip != null)
+        {
+            targetAnimation = crouchClip.name;
+        }
+        else if (isWalking)
+        {
+            if (isSprinting && runForwardClip != null)
+            {
+                targetAnimation = runForwardClip.name;
+            }
+            else if (walkForwardClip != null)
+            {
+                targetAnimation = walkForwardClip.name;
+            }
+        }
+        else if (idleClip != null)
+        {
+            targetAnimation = idleClip.name;
+        }
+        
+        // Ne changer l'animation que si nécessaire
+        if (targetAnimation != "" && currentAnimationState != targetAnimation)
+        {
+            // Si c'est une animation de saut, la jouer directement (sans transition)
+            if (targetAnimation == jumpClip.name)
+            {
+                walkAnimation.Play(targetAnimation);
+            }
+            else
+            {
+                // Pour les autres animations, faire une transition douce
+                walkAnimation.CrossFade(targetAnimation, animationBlendSpeed);
+            }
+            
+            currentAnimationState = targetAnimation;
+        }
+        
+        // Ajuster la vitesse des animations en fonction de la vitesse de déplacement
+        if (isWalking && currentAnimationState == walkForwardClip.name)
+        {
+            // Ajuster la vitesse de l'animation à la vitesse de marche
+            float speedFactor = rb.linearVelocity.magnitude / walkSpeed;
+            walkAnimation[walkForwardClip.name].speed = Mathf.Max(0.5f, speedFactor);
+        }
+        else if (isWalking && isSprinting && currentAnimationState == runForwardClip.name)
+        {
+            // Ajuster la vitesse de l'animation à la vitesse de course
+            float speedFactor = rb.linearVelocity.magnitude / sprintSpeed;
+            walkAnimation[runForwardClip.name].speed = Mathf.Max(0.7f, speedFactor);
+        }
+    }
 }
 
 
@@ -1422,6 +1610,47 @@ public class FirstPersonController : MonoBehaviour
         GUI.enabled = fpc.enableBlurredVision;
         fpc.maxBlurAmount = EditorGUILayout.Slider(new GUIContent("Intensité Maximale", "Intensité maximale de l'effet de vision trouble."), fpc.maxBlurAmount, 0.01f, 1f);
         fpc.blurRecoverySpeed = EditorGUILayout.Slider(new GUIContent("Vitesse de Récupération", "Vitesse à laquelle la vision redevient normale."), fpc.blurRecoverySpeed, 0.1f, 10f);
+        GUI.enabled = true;
+        
+        EditorGUILayout.Space();
+        
+        // Système d'animations
+        GUILayout.Label("Animations du Personnage", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft, fontStyle = FontStyle.Bold, fontSize = 13 }, GUILayout.ExpandWidth(true));
+        
+        fpc.enableWalkingAnimation = EditorGUILayout.ToggleLeft(new GUIContent("Activer les Animations", "Active le système d'animations pour le personnage."), fpc.enableWalkingAnimation);
+        
+        GUI.enabled = fpc.enableWalkingAnimation;
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel(new GUIContent("Composant Animation", "Le composant Animation qui sera utilisé pour jouer les animations."));
+        fpc.walkAnimation = (Animation)EditorGUILayout.ObjectField(fpc.walkAnimation, typeof(Animation), true);
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel(new GUIContent("Animation Marche", "L'animation qui sera jouée pendant la marche."));
+        fpc.walkForwardClip = (AnimationClip)EditorGUILayout.ObjectField(fpc.walkForwardClip, typeof(AnimationClip), false);
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel(new GUIContent("Animation Course", "L'animation qui sera jouée pendant la course."));
+        fpc.runForwardClip = (AnimationClip)EditorGUILayout.ObjectField(fpc.runForwardClip, typeof(AnimationClip), false);
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel(new GUIContent("Animation Idle", "L'animation qui sera jouée quand le joueur ne bouge pas."));
+        fpc.idleClip = (AnimationClip)EditorGUILayout.ObjectField(fpc.idleClip, typeof(AnimationClip), false);
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel(new GUIContent("Animation Accroupi", "L'animation qui sera jouée quand le joueur est accroupi."));
+        fpc.crouchClip = (AnimationClip)EditorGUILayout.ObjectField(fpc.crouchClip, typeof(AnimationClip), false);
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel(new GUIContent("Animation Saut", "L'animation qui sera jouée quand le joueur saute."));
+        fpc.jumpClip = (AnimationClip)EditorGUILayout.ObjectField(fpc.jumpClip, typeof(AnimationClip), false);
+        EditorGUILayout.EndHorizontal();
+        
+        fpc.animationBlendSpeed = EditorGUILayout.Slider(new GUIContent("Vitesse de Transition", "Détermine la vitesse de transition entre les animations."), fpc.animationBlendSpeed, 0.05f, 0.5f);
         GUI.enabled = true;
 
         #endregion
