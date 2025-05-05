@@ -68,6 +68,12 @@ public class RadioInteractive : MonoBehaviour
     private PlayerInput inputJoueur;
     private float rotationInitialeMolette = 0f;
     
+    [Tooltip("Référence au système d'objectifs")]
+    public SystemeObjectifs systemeObjectifs;
+    
+    [Tooltip("Indique si ce message est celui du Général de Gaulle")]
+    public bool estMessageDeGaulle = false;
+    
     // Sources audio générées automatiquement
     private AudioSource audioSourceGresillement;
     private AudioSource audioSourceDiscours;
@@ -276,6 +282,12 @@ public class RadioInteractive : MonoBehaviour
                 audioSourceDiscours.clip = clipDiscours;
                 audioSourceDiscours.volume = volumeDiscours;
                 audioSourceDiscours.Play();
+                
+                // Si c'est le message du Général de Gaulle, compléter l'objectif correspondant
+                if (estMessageDeGaulle && systemeObjectifs != null)
+                {
+                    systemeObjectifs.CompleterObjectifMessageDeGaulle();
+                }
             }
         }
         // Si on s'éloigne de la bonne fréquence
@@ -380,4 +392,4 @@ public class RadioInteractive : MonoBehaviour
         // Texte
         GUI.Label(positionTexte, texte, styleTexte);
     }
-} 
+}

@@ -62,6 +62,12 @@ public class TableauInteractif : MonoBehaviour
     private MonoBehaviour[] playerMovementScripts; // Pour stocker tous les scripts de mouvement potentiels
     private GUIStyle styleTexte;
     
+    [Tooltip("Référence au système d'objectifs")]
+    public SystemeObjectifs systemeObjectifs;
+    
+    [Tooltip("ID unique de ce tableau pour le système d'objectifs")]
+    public string tableauId;
+    
     // Awake est appelé lorsque le script est initialisé
     void Awake()
     {
@@ -189,6 +195,17 @@ public class TableauInteractif : MonoBehaviour
         // Jouer le son de narration
         audioSource.clip = narrationAudio;
         audioSource.Play();
+        
+        // Enregistrer l'interaction avec ce tableau dans le système d'objectifs
+        if (systemeObjectifs != null && !string.IsNullOrEmpty(tableauId))
+        {
+            Debug.Log("Interaction avec le tableau: " + tableauId + " - Enregistrement dans le système d'objectifs");
+            systemeObjectifs.EnregistrerTableauVisite(tableauId);
+        }
+        else
+        {
+            Debug.LogWarning("Impossible d'enregistrer l'interaction avec le tableau: systemeObjectifs=" + (systemeObjectifs != null) + ", tableauId=" + tableauId);
+        }
     }
     
     // Gérer l'animation de zoom de la caméra
@@ -341,6 +358,27 @@ public class TableauInteractif : MonoBehaviour
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(transform.position, zoomTarget.position);
             Gizmos.DrawSphere(zoomTarget.position, 0.1f);
+        }
+    }
+    
+    // S'assurer que le tableau a un ID unique au démarrage
+    private void OnEnable()
+    {
+        // Si le tableau n'a pas d'ID, en générer un
+        if (string.IsNullOrEmpty(tableauId))
+        {
+            tableauId = "tableau_" + gameObject.GetInstanceID();
+            Debug.Log("ID généré pour tableau: " + tableauId);
+        }
+        
+        // Trouver le système d'objectifs s'il n'est pas déjà assigné
+        if (systemeObjectifs == null)
+        {
+            systemeObjectifs = FindObjectOfType<SystemeObjectifs>();
+            if (systemeObjectifs != null)
+            {
+                Debug.Log("SystemeObjectifs trouvé et assigné automatiquement au tableau: " + tableauId);
+            }
         }
     }
     
