@@ -1,0 +1,83 @@
+INSTRUCTIONS POUR CONFIGURER LA SCÈNE D'AVION
+
+1. CONFIGURATION DE BASE
+-----------------------
+- Créer une nouvelle scène Unity 
+- Ajouter un terrain de base (GameObject > 3D Object > Terrain)
+- Configurer le ciel : Window > Rendering > Lighting Settings > Environment > Skybox Material
+
+2. MISE EN PLACE DE L'AVION
+--------------------------
+- Importer l'avion depuis "Assets/Rusty plane/Prefabs/"
+- Placer l'avion au-dessus du terrain (hauteur recommandée : 100 unités)
+- Ajouter les composants requis à l'avion :
+  * Rigidbody
+  * AvionController (script)
+  * Collider (Box Collider ou Mesh Collider selon la complexité du modèle)
+
+3. CONFIGURATION DU CONTRÔLEUR D'AVION
+-------------------------------------
+- Sélectionner l'avion dans la hiérarchie
+- Dans l'Inspector, configurer le AvionController :
+  * Assigner l'hélice (propulseur) de l'avion au champ "Propulseur"
+  * Ajuster les paramètres de vitesse et de sensibilité selon vos préférences
+  * Créer et assigner une caméra à "Camera Avion"
+
+4. CONFIGURATION DU SON
+---------------------
+- Créer un objet vide comme enfant de l'avion (nommer "Sons")
+- Ajouter 3 AudioSource à cet objet
+- Assigner différents clips audio pour :
+  * Son moteur idle (ralenti)
+  * Son moteur accélération
+  * Son moteur croisière
+- Ajouter le composant MoteurSonController à l'objet "Sons"
+- Assigner les AudioSource aux champs correspondants
+
+5. CONFIGURATION DES PROPULSEURS
+------------------------------
+- Sélectionner l'hélice (propulseur) de l'avion
+- Ajouter le composant PropulseurController
+- Configurer l'axe de rotation (généralement Vector3.forward)
+- Optionnel : ajouter un système de particules pour l'effet d'air
+  * GameObject > Effects > Particle System
+  * Configurer le système de particules pour simuler le flux d'air
+  * Assigner le système au champ "Effet Air" du PropulseurController
+
+6. GÉNÉRATION DE TERRAIN DYNAMIQUE
+--------------------------------
+- Créer un objet vide dans la scène (nommer "Generateur Terrain")
+- Ajouter le composant TerrainGenerator à cet objet
+- Créer des préfabs de montagnes (modèles 3D) à placer dynamiquement
+- Assigner ces préfabs à la liste "Prefabs Montagnes" du TerrainGenerator
+- Ajuster les paramètres de génération :
+  * Rayon de visibilité
+  * Distance entre les montagnes
+  * Densité des montagnes
+  * Hauteurs minimale et maximale
+
+7. OPTIMISATION
+-------------
+- Ajouter un système de LOD (Level of Detail) pour les modèles de montagnes
+- Ajuster les paramètres de qualité graphique selon les besoins
+- Configurer la distance de rendu et le brouillard pour masquer l'apparition des montagnes
+
+8. PARAMÈTRES DE JEU
+------------------
+- Configurer les entrées (Edit > Project Settings > Input Manager)
+- S'assurer que les axes "Horizontal" et "Vertical" sont correctement définis
+- Ajouter d'autres contrôles si nécessaire (touches pour accélérer/freiner)
+
+9. TESTS ET AJUSTEMENTS
+---------------------
+- Lancer la scène et tester les contrôles de vol
+- Ajuster les paramètres de physique pour un contrôle plus fluide
+- Vérifier que la génération de terrain fonctionne correctement
+- Affiner les paramètres sonores pour une expérience immersive
+
+10. ÉLÉMENTS SUPPLÉMENTAIRES (OPTIONNELS)
+---------------------------------------
+- Ajouter un HUD (affichage tête haute) pour les informations de vol
+- Intégrer des effets météorologiques (pluie, nuages, etc.)
+- Créer des objectifs ou missions (anneaux à traverser, etc.)
+- Ajouter un système de dégâts et de carburant pour plus de réalisme 

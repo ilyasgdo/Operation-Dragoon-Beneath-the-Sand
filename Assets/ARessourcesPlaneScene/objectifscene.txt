@@ -1,0 +1,4 @@
+je veux une scene d'avion avec un controller d'avion , vaec un son de moterur et il fait trourner les propiler de l'avion
+je veux qu'il y ai un systeme de genreration de terain dynamique , quand je vole avec l'avion ca place dans mon rayon de champs de vison possible
+des montagne avec des taille diffreentes ,je veux passer une liste de prefab de montagn,n et ca place les montagne dynamiquement et des que je ne veux plus les voir ca les supprime 
+ensuite explqieu moi comment placer les elment de la scene 
