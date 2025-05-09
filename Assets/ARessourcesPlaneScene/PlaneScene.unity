@@ -587,12 +587,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1377119707}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.12413027, y: -0.02767829, z: 0.0034636012, w: 0.9918738}
-  m_LocalPosition: {x: 6.897584, y: 113.55026, z: -17.092634}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalRotation: {x: -0.07252155, y: -0.68774754, z: 0.069332585, w: -0.71898323}
+  m_LocalPosition: {x: -0.6496785, y: 0.8675868, z: -0.033173267}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 5251681194809639729}
   m_LocalEulerAnglesHint: {x: -1.281, y: 0, z: 0.037}
 --- !u!114 &1377119709
 MonoBehaviour:
@@ -704,13 +704,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1377119707}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a0c9e4881fa39e4c9584ab372378e38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cibleAvion: {fileID: 5251681194809639729}
-  modeCamera: 2
+  cibleAvion: {fileID: 3996432647158667083}
+  modeCamera: 1
   distanceArriere: 10
   hauteur: 3
   vitesseLissage: 5
@@ -2225,11 +2225,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9131859547536535842}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.70710576, z: -0, w: 0.70710784}
-  m_LocalPosition: {x: 199.85378, y: 55.137253, z: -91.662796}
+  m_LocalRotation: {x: -0, y: 0.0000005066394, z: -0, w: 1}
+  m_LocalPosition: {x: 199.66806, y: 55.137253, z: -91.35561}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1377119708}
   - {fileID: 888971457}
   - {fileID: 182298488966991264}
   - {fileID: 3261372260892998737}
@@ -2257,7 +2258,7 @@ Transform:
   - {fileID: 6258690797653940599}
   - {fileID: 4392204079785198523}
   m_Father: {fileID: 1450862030}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &5254903381054737433
 Transform:
   m_ObjectHideFlags: 0
@@ -3328,7 +3329,7 @@ MonoBehaviour:
   sensibiliteMonte: 2
   stabilisationVitesse: 1
   stabilisationAutomatique: 0.8
-  coefficientPortance: 0.002
+  coefficientPortance: 0.5
   vitessePortanceOptimale: 80
   effetAerodynamique: 0.02
   facteurAugmentationTrainee: 0.001
@@ -3345,7 +3346,7 @@ MonoBehaviour:
   sonMoteur: {fileID: 1393029666}
   pitchMinMoteur: 0.6
   pitchMaxMoteur: 1.2
-  cameraAvion: {fileID: 1377119708}
+  cameraAvion: {fileID: 0}
   distanceCameraY: 5
   distanceCameraZ: -10
   hauteurCamera: 2
@@ -3517,7 +3518,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1143236797}
-  - {fileID: 1377119708}
   - {fileID: 1450862030}
   - {fileID: 1993911268}
   - {fileID: 385758205}
