@@ -24,7 +24,7 @@ public class FeuilleInteractive : MonoBehaviour
     [Range(0f, 1f)]
     public float volumeSon = 0.7f;
     
-    [Header("Animation de la Feuille")]
+    [Header("Position de la Feuille")]
     [Tooltip("La caméra du joueur")]
     public Camera playerCamera;
     
@@ -36,9 +36,6 @@ public class FeuilleInteractive : MonoBehaviour
     
     [Tooltip("Échelle de la feuille quand elle est devant la caméra")]
     public Vector3 echelleDevantCamera = new Vector3(1, 1, 1);
-    
-    [Tooltip("Vitesse de transition de l'animation")]
-    public float vitesseAnimation = 5.0f;
     
     [Header("Interface Utilisateur")]
     [Tooltip("Texte à afficher pour indiquer comment quitter l'interaction")]
@@ -103,16 +100,10 @@ public class FeuilleInteractive : MonoBehaviour
             CommencerConsultation();
         }
         
-        // Gérer l'animation de la feuille si la consultation est en cours
-        if (estEnConsultation)
+        // Permettre au joueur de quitter la consultation en appuyant sur Échap
+        if (estEnConsultation && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            AnimerFeuille();
-            
-            // Permettre au joueur de quitter la consultation en appuyant sur Échap
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
-            {
-                TerminerConsultation();
-            }
+            TerminerConsultation();
         }
     }
     
@@ -158,6 +149,8 @@ public class FeuilleInteractive : MonoBehaviour
         // Désactiver tous les contrôles du joueur
         DesactiverDeplacementJoueur();
         
+        
+        
         // Jouer le son de prise de papier
         if (paperPickupSound != null)
         {
@@ -166,40 +159,12 @@ public class FeuilleInteractive : MonoBehaviour
         }
     }
     
-    // Animer la feuille pour qu'elle se place devant la caméra
-    void AnimerFeuille()
-    {
-        if (playerCamera == null) return;
-        
-        // Calculer la position cible devant la caméra
-        Vector3 positionCible = playerCamera.transform.position + playerCamera.transform.forward * positionDevantCamera.z
-                                + playerCamera.transform.up * positionDevantCamera.y
-                                + playerCamera.transform.right * positionDevantCamera.x;
-        
-        // Calculer la rotation cible (face à la caméra avec rotation de 90 degrés)
-        // On utilise LookRotation pour s'assurer que la feuille fait face à la caméra
-        // puis on applique la rotation supplémentaire définie dans rotationDevantCamera
-        Vector3 directionCamera = playerCamera.transform.position - positionCible;
-        Quaternion rotationFaceCamera = Quaternion.LookRotation(-directionCamera);
-        Quaternion rotationCible = rotationFaceCamera * Quaternion.Euler(rotationDevantCamera);
-        
-        // Animer la position de la feuille
-        transform.position = Vector3.Lerp(transform.position, positionCible, Time.deltaTime * vitesseAnimation);
-        
-        // Animer la rotation de la feuille
-        transform.rotation = Quaternion.Slerp(transform.rotation, rotationCible, Time.deltaTime * vitesseAnimation);
-        
-        // Animer l'échelle de la feuille
-        transform.localScale = Vector3.Lerp(transform.localScale, echelleDevantCamera, Time.deltaTime * vitesseAnimation);
-    }
-    
     // Terminer la consultation de la feuille
     void TerminerConsultation()
     {
         estEnConsultation = false;
         
-        // Animer le retour de la feuille à sa position originale
-        StartCoroutine(RetournerFeuillePosition());
+       
         
         // Réactiver les contrôles du joueur
         ReactiverDeplacementJoueur();
@@ -210,33 +175,6 @@ public class FeuilleInteractive : MonoBehaviour
             audioSource.clip = paperPutdownSound;
             audioSource.Play();
         }
-    }
-    
-    // Coroutine pour animer le retour de la feuille à sa position originale
-    System.Collections.IEnumerator RetournerFeuillePosition()
-    {
-        float tempsEcoule = 0;
-        Vector3 positionDepart = transform.position;
-        Quaternion rotationDepart = transform.rotation;
-        Vector3 echelleDepart = transform.localScale;
-        
-        while (tempsEcoule < 1.0f)
-        {
-            tempsEcoule += Time.deltaTime * vitesseAnimation;
-            float t = Mathf.Clamp01(tempsEcoule);
-            
-            // Interpolation de la position, rotation et échelle
-            transform.position = Vector3.Lerp(positionDepart, positionOriginale, t);
-            transform.rotation = Quaternion.Slerp(rotationDepart, rotationOriginale, t);
-            transform.localScale = Vector3.Lerp(echelleDepart, echelleOriginale, t);
-            
-            yield return null;
-        }
-        
-        // S'assurer que la feuille est exactement à sa position originale
-        transform.position = positionOriginale;
-        transform.rotation = rotationOriginale;
-        transform.localScale = echelleOriginale;
     }
     
     // Désactiver tous les composants de mouvement du joueur

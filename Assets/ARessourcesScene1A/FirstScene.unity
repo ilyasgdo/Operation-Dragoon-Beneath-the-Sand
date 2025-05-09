@@ -542,11 +542,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4425874899348998, guid: e3b08ca4cbd32534ea8d0b5e519709e2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4425874899348998, guid: e3b08ca4cbd32534ea8d0b5e519709e2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.004
+      value: -4.9533334
       objectReference: {fileID: 0}
     - target: {fileID: 4425874899348998, guid: e3b08ca4cbd32534ea8d0b5e519709e2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -17922,6 +17922,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 870163065}
   - {fileID: 1615007409}
   - {fileID: 378033049}
   - {fileID: 922101953}
@@ -23114,7 +23115,6 @@ MonoBehaviour:
   positionDevantCamera: {x: 0, y: 0, z: 0.5}
   rotationDevantCamera: {x: 0, y: 90, z: 0}
   echelleDevantCamera: {x: 1, y: 1, z: 1}
-  vitesseAnimation: 5
   texteQuitter: "Appuyez sur \xC9CHAP pour quitter"
   tailleTexte: 20
 --- !u!4 &601366374 stripped
@@ -35307,7 +35307,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 870163064}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 20.642042, y: 7.438035, z: -18.91}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -35315,7 +35315,7 @@ Transform:
   - {fileID: 897353577}
   - {fileID: 683378349}
   - {fileID: 1302177675}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 497777472}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &872058537
 GameObject:
@@ -38862,10 +38862,10 @@ Transform:
   m_Children:
   - {fileID: 548355405}
   - {fileID: 641642649}
-  - {fileID: 574911134}
   - {fileID: 1193277358}
   - {fileID: 967304734}
   - {fileID: 1215922406}
+  - {fileID: 574911134}
   - {fileID: 1277502321}
   - {fileID: 981560172}
   - {fileID: 48523085}
@@ -41845,9 +41845,8 @@ MonoBehaviour:
   volumeSon: 0.879
   playerCamera: {fileID: 0}
   positionDevantCamera: {x: 0, y: 0, z: 0.5}
-  rotationDevantCamera: {x: 0, y: 0, z: 0}
+  rotationDevantCamera: {x: 0, y: 90, z: 0}
   echelleDevantCamera: {x: 1, y: 1, z: 1}
-  vitesseAnimation: 5
   texteQuitter: "Appuyez sur \xC9CHAP pour quitter"
   tailleTexte: 20
 --- !u!1 &1032960287
@@ -47514,11 +47513,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4425874899348998, guid: e3b08ca4cbd32534ea8d0b5e519709e2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4425874899348998, guid: e3b08ca4cbd32534ea8d0b5e519709e2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.001
+      value: -4.953334
       objectReference: {fileID: 0}
     - target: {fileID: 4425874899348998, guid: e3b08ca4cbd32534ea8d0b5e519709e2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -59660,9 +59659,8 @@ MonoBehaviour:
   volumeSon: 0.879
   playerCamera: {fileID: 0}
   positionDevantCamera: {x: 0, y: 0, z: 0.5}
-  rotationDevantCamera: {x: 0, y: 0, z: 0}
+  rotationDevantCamera: {x: 0, y: 90, z: 0}
   echelleDevantCamera: {x: 1, y: 1, z: 1}
-  vitesseAnimation: 5
   texteQuitter: "Appuyez sur \xC9CHAP pour quitter"
   tailleTexte: 20
 --- !u!1 &1452195538
@@ -89472,5 +89470,4 @@ SceneRoots:
   - {fileID: 297594867}
   - {fileID: 286781137}
   - {fileID: 1955010953}
-  - {fileID: 870163065}
   - {fileID: 497777472}
