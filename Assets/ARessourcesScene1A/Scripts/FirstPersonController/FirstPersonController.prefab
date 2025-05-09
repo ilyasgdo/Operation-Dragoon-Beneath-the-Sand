@@ -196,6 +196,23 @@ MonoBehaviour:
   joint: {fileID: 4459864851508666808}
   bobSpeed: 10
   bobAmount: {x: 0, y: 0.1, z: 0}
+  enableBreathing: 1
+  breathingIntensity: 0.03
+  breathingSpeed: 1.2
+  enableLeanInTurns: 1
+  leanAngle: 2
+  leanSpeed: 1
+  enableBlurredVision: 1
+  blurRecoverySpeed: 1
+  maxBlurAmount: 0.5
+  enableWalkingAnimation: 1
+  walkAnimation: {fileID: 0}
+  walkForwardClip: {fileID: 0}
+  runForwardClip: {fileID: 0}
+  idleClip: {fileID: 0}
+  crouchClip: {fileID: 0}
+  jumpClip: {fileID: 0}
+  animationBlendSpeed: 0.15
   enablePTSDEffects: 1
   minTimeBetweenFlashbacks: 30
   maxTimeBetweenFlashbacks: 120

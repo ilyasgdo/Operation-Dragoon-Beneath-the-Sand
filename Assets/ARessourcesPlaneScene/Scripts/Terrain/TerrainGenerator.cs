@@ -14,6 +14,20 @@ public class TerrainGenerator : MonoBehaviour
     [Header("Préfabs de montagnes")]
     public List<GameObject> prefabsMontagnes;
     
+    [Header("Préfabs de décorations")]
+    public List<GameObject> prefabsArbres;
+    public List<GameObject> prefabsPierres;
+    [Range(0, 20)] public int nombreArbresParMontagne = 3;
+    [Range(0, 20)] public int nombrePierresParMontagne = 4;
+    [Range(0.5f, 2f)] public float echelleMinArbres = 0.8f;
+    [Range(1f, 3f)] public float echelleMaxArbres = 1.2f;
+    [Range(0.3f, 1.5f)] public float echelleMinPierres = 0.5f;
+    [Range(0.5f, 2f)] public float echelleMaxPierres = 1.5f;
+    [Range(0, 20)] public int nombreArbresParChunk = 10;
+    [Range(10f, 50f)] public float distanceMinimaleEntreArbres = 25f;
+    [Range(10f, 40f)] public float distanceMinimaleEntrePierres = 20f;
+    [Range(20f, 60f)] public float distanceMinimaleMontagneArbre = 40f;
+    
     [Header("Configuration de génération")]
     [Range(50f, 200f)] public float distanceEntreMontagnes = 100f;
     [Range(3, 15)] public int densiteMontagnes = 8;
@@ -695,6 +709,57 @@ public class TerrainGenerator : MonoBehaviour
         return chunks;
     }
     
+    private void PlacerPierresSurMontagne(GameObject montagne, Vector3 posObjet, Chunk chunk)
+    {
+        if (prefabsPierres == null || prefabsPierres.Count == 0) return;
+
+        int nbPierres = Random.Range(0, nombrePierresParMontagne + 1);
+        List<Vector3> positionsPierres = new List<Vector3>();
+
+        for (int j = 0; j < nbPierres; j++)
+        {
+            bool positionValide = false;
+            Vector3 posPierre = Vector3.zero;
+            int tentatives = 0;
+            const int maxTentatives = 20;
+
+            while (!positionValide && tentatives < maxTentatives)
+            {
+                // Position aléatoire sur la montagne
+                posPierre = posObjet + new Vector3(
+                    Random.Range(-montagne.transform.localScale.x/2, montagne.transform.localScale.x/2),
+                    Random.Range(0, montagne.transform.localScale.y * 0.7f),
+                    Random.Range(-montagne.transform.localScale.z/2, montagne.transform.localScale.z/2)
+                );
+
+                // Vérifier la distance avec les autres pierres
+                positionValide = true;
+                foreach (Vector3 posPierreExistant in positionsPierres)
+                {
+                    if (Vector3.Distance(posPierre, posPierreExistant) < distanceMinimaleEntrePierres)
+                    {
+                        positionValide = false;
+                        break;
+                    }
+                }
+
+                tentatives++;
+            }
+
+            if (positionValide)
+            {
+                // Créer la pierre
+                GameObject pierre = Instantiate(prefabsPierres[Random.Range(0, prefabsPierres.Count)], posPierre, 
+                    Quaternion.Euler(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
+                float echellePierre = Random.Range(echelleMinPierres, echelleMaxPierres);
+                pierre.transform.localScale = new Vector3(echellePierre, echellePierre, echellePierre);
+                pierre.transform.parent = montagne.transform;
+                chunk.objets.Add(pierre);
+                positionsPierres.Add(posPierre);
+            }
+        }
+    }
+    
     private IEnumerator GenererChunkAsync(Vector2Int coords)
     {
         generationEnCours = true;
@@ -707,14 +772,12 @@ public class TerrainGenerator : MonoBehaviour
         Vector3 position = ChunkVersPosition(coords);
         chunk.conteneur.transform.position = new Vector3(position.x, 0, position.z);
         
+        // Liste pour stocker les positions des montagnes
+        List<Vector3> positionsMontagnes = new List<Vector3>();
+        
         // Effectuer la génération du chunk en tâche parallèle
         Task genTask = Task.Run(() => {
             // Cette partie s'exécute dans un thread séparé
-            // Ici, on pourrait calculer une heightmap ou d'autres données complexes
-            // Pour cet exemple, on se contente de préparer les positions des objets
-            
-            // Nous ne pouvons pas interagir directement avec Unity depuis ce thread
-            // Les données sont préparées ici, puis appliquées dans le thread principal
         });
         
         // Attendre que la tâche soit terminée
@@ -741,12 +804,13 @@ public class TerrainGenerator : MonoBehaviour
                 continue;
             }
             
-            // Créer l'objet
+            // Créer la montagne
             int indexPrefab = Random.Range(0, prefabsMontagnes.Count);
-            GameObject objet = ObtenirObjetDePool(indexPrefab);
+            GameObject montagne = ObtenirObjetDePool(indexPrefab);
             
-            // Configurer l'objet
-            objet.transform.position = posObjet;
+            // Configurer la montagne
+            montagne.transform.position = posObjet;
+            positionsMontagnes.Add(posObjet); // Stocker la position de la montagne
             
             // Rotation aléatoire
             Quaternion rotationY = Quaternion.Euler(
@@ -754,7 +818,7 @@ public class TerrainGenerator : MonoBehaviour
                 Random.Range(0, 360), 
                 0
             );
-            objet.transform.rotation = rotationY;
+            montagne.transform.rotation = rotationY;
             
             // Mise à l'échelle
             if (conserverTailleOriginale)
@@ -770,20 +834,86 @@ public class TerrainGenerator : MonoBehaviour
                     echelleOriginale.z * variation * variationEpaisseur
                 );
                 
-                objet.transform.localScale = nouvelleEchelle;
+                montagne.transform.localScale = nouvelleEchelle;
             }
             else
             {
                 float largeur = Random.Range(largeurMinimale, largeurMaximale);
                 float epaisseur = Random.Range(epaisseurMinimale, epaisseurMaximale);
-                objet.transform.localScale = new Vector3(largeur, hauteurFixe, epaisseur);
+                montagne.transform.localScale = new Vector3(largeur, hauteurFixe, epaisseur);
             }
             
-            // Ajouter l'objet au chunk
-            objet.transform.parent = chunk.conteneur.transform;
-            chunk.objets.Add(objet);
+            // Ajouter la montagne au chunk
+            montagne.transform.parent = chunk.conteneur.transform;
+            chunk.objets.Add(montagne);
+
+            // Placer les pierres sur la montagne
+            PlacerPierresSurMontagne(montagne, posObjet, chunk);
         }
-        
+
+        // Placer les arbres sur le terrain plat
+        if (prefabsArbres != null && prefabsArbres.Count > 0)
+        {
+            int nbArbres = Random.Range(0, nombreArbresParChunk + 1);
+            List<Vector3> positionsArbres = new List<Vector3>();
+
+            for (int i = 0; i < nbArbres; i++)
+            {
+                // Essayer de trouver une position valide pour l'arbre
+                bool positionValide = false;
+                Vector3 posArbre = Vector3.zero;
+                int tentatives = 0;
+                const int maxTentatives = 30;
+
+                while (!positionValide && tentatives < maxTentatives)
+                {
+                    // Position aléatoire dans le chunk
+                    posArbre = new Vector3(
+                        position.x - tailleChunk/2 + Random.Range(0, tailleChunk),
+                        0,
+                        position.z - tailleChunk/2 + Random.Range(0, tailleChunk)
+                    );
+
+                    // Vérifier si la position est loin des montagnes
+                    positionValide = true;
+                    foreach (Vector3 posMontagne in positionsMontagnes)
+                    {
+                        if (Vector3.Distance(posArbre, posMontagne) < distanceMinimaleMontagneArbre)
+                        {
+                            positionValide = false;
+                            break;
+                        }
+                    }
+
+                    // Vérifier si la position est loin des autres arbres
+                    if (positionValide)
+                    {
+                        foreach (Vector3 posArbreExistant in positionsArbres)
+                        {
+                            if (Vector3.Distance(posArbre, posArbreExistant) < distanceMinimaleEntreArbres)
+                            {
+                                positionValide = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    tentatives++;
+                }
+
+                if (positionValide)
+                {
+                    // Créer l'arbre
+                    GameObject arbre = Instantiate(prefabsArbres[Random.Range(0, prefabsArbres.Count)], posArbre, Quaternion.Euler(0, Random.Range(0, 360), 0));
+                    float echelleArbre = Random.Range(echelleMinArbres, echelleMaxArbres);
+                    arbre.transform.localScale = new Vector3(echelleArbre, echelleArbre, echelleArbre);
+                    arbre.transform.parent = chunk.conteneur.transform;
+                    chunk.objets.Add(arbre);
+                    positionsArbres.Add(posArbre);
+                }
+            }
+        }
+
         // Appliquer le LOD approprié
         float distanceChunk = Vector3.Distance(
             new Vector3(joueurTransform.position.x, 0, joueurTransform.position.z),
