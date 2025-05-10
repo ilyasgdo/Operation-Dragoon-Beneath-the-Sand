@@ -115,13 +115,13 @@ MonoBehaviour:
     m_Value: 0
   focusDistance:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 70
   aperture:
     m_OverrideState: 1
-    m_Value: 4
+    m_Value: 9
   focalLength:
     m_OverrideState: 1
-    m_Value: 17
+    m_Value: 7
   bladeCount:
     m_OverrideState: 1
     m_Value: 5
@@ -149,10 +149,10 @@ MonoBehaviour:
     m_Value: 1
   threshold:
     m_OverrideState: 1
-    m_Value: 0.9
+    m_Value: 1.1
   intensity:
     m_OverrideState: 1
-    m_Value: 0.1
+    m_Value: 0.5
   scatter:
     m_OverrideState: 1
     m_Value: 0.71
@@ -522,7 +522,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 0.457
+    m_Value: 0.294
 --- !u!114 &7901747951979798930
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -752,10 +752,10 @@ MonoBehaviour:
   active: 1
   postExposure:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 0.8
   contrast:
     m_OverrideState: 1
-    m_Value: -10.9
+    m_Value: 12.6
   colorFilter:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -764,7 +764,7 @@ MonoBehaviour:
     m_Value: 0
   saturation:
     m_OverrideState: 1
-    m_Value: 62.4
+    m_Value: 9.9
 --- !u!114 &8230192395181555109
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -780,7 +780,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: -0.463
+    m_Value: 0.089
   xMultiplier:
     m_OverrideState: 1
     m_Value: 1

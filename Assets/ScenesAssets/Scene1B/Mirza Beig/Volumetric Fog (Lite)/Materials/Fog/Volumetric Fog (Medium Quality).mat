@@ -8,13 +8,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Volumetric Fog (Medium Quality)
-  m_Shader: {fileID: -6465566751694194690, guid: b41208ea9fa867440be4a9ec08db6e2a,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: b41208ea9fa867440be4a9ec08db6e2a, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _MAIN_LIGHT_ENABLED
-  - _MAIN_LIGHT_SHADOWS_CASCADE
+  - _MAIN_LIGHT_SHADOWS
   m_InvalidKeywords:
   - PROBE_VOLUMES_OFF
   m_LightmapFlags: 4
@@ -145,7 +144,7 @@ Material:
     - _Curl_Strength_Raymarch_Offset: 2
     - _Curl_Strength_Raymarch_Sample: 0.2
     - _Cutoff: 0.5
-    - _Density: 1
+    - _Density: 0.81
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -165,7 +164,7 @@ Material:
     - _Indirect_Light_Intensity: 0.2
     - _Indirect_Light_Strength: 0.6
     - _Invert_Noise: 0
-    - _MAIN_LIGHT: 1
+    - _MAIN_LIGHT: 0
     - _MAIN_LIGHT_ENABLED: 1
     - _MAIN_LIGHT_HIGH_QUALITY_ANISOTROPY: 1
     - _MAIN_LIGHT_LERP_BLEND: 0
@@ -179,21 +178,22 @@ Material:
     - _MAIN_LIGHT_SHADOWS_ENABLED: 1
     - _Main_Light_Anisotropic_Blend: 0.8
     - _Main_Light_Anisotropy: 0.6
-    - _Main_Light_Intensity: 0.5
+    - _Main_Light_Anisotropy_Blend: 0.8
+    - _Main_Light_Intensity: 0.425
     - _Main_Light_Self_Shadow_Absorption_Coefficient: 0.5
     - _Main_Light_Self_Shadow_Raymarch_Distance: 5
     - _Main_Light_Self_Shadow_Raymarch_Steps: 8
     - _Main_Light_Self_Shadow_Sample_Offset: 0.2
     - _Main_Light_Self_Shadow_Steps: 1
     - _Main_Light_Self_Shadow_Strength: 1
-    - _Main_Light_Shadow_Strength: 0.9
+    - _Main_Light_Shadow_Strength: 0.045
     - _Metallic: 0
     - _Noise_Blend: 0.5
     - _OcclusionStrength: 1
     - _PROBE_VOLUMES: 2
     - _PROCEDURAL_DENSITY: 0
     - _Parallax: 0.005
-    - _Power: 1
+    - _Power: 0.1
     - _QueueOffset: 0
     - _RAYMARCH_CLAMP_TO_SURFACE: 0
     - _RaymarchSteps: 2.29
@@ -209,7 +209,7 @@ Material:
     - _Raymarch_Self_Shadow_Steps: 4
     - _Raymarch_Steps: 32
     - _ReceiveShadows: 1
-    - _Remap_Max: 0.9
+    - _Remap_Max: 0.615
     - _Remap_Min: 0
     - _SIMPLEX_NOISE_ENABLED: 1
     - _SOFT_SHADOWS: 1

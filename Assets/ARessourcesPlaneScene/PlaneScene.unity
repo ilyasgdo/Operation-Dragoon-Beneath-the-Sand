@@ -14,10 +14,10 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
+  m_Fog: 1
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.01
+  m_FogDensity: 0.115
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -334,8 +334,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 3a1fd21bcd9ffc642bc3ac478f23e749, type: 3}
-  m_Resource: {fileID: 8300000, guid: 3a1fd21bcd9ffc642bc3ac478f23e749, type: 3}
+  m_audioClip: {fileID: 8300000, guid: ab8fab15de24cce4b9b6f8e60bf4cb85, type: 3}
+  m_Resource: {fileID: 8300000, guid: ab8fab15de24cce4b9b6f8e60bf4cb85, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.607
   m_Pitch: 1
@@ -703,8 +703,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1377119707}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.09961989, y: 0.047438994, z: -0.0046986938, w: 0.99388295}
-  m_LocalPosition: {x: -0.0074062347, y: 2.6946716, z: 0.43323517}
+  m_LocalRotation: {x: -0.038386747, y: 0.010213856, z: -0.00032159523, w: -0.9992107}
+  m_LocalPosition: {x: -0.030984879, y: 2.2649307, z: 2.2906342}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -864,8 +864,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: c7d3660f1caf731468f4a2a948a2628d, type: 3}
-  m_Resource: {fileID: 8300000, guid: c7d3660f1caf731468f4a2a948a2628d, type: 3}
+  m_audioClip: {fileID: 8300000, guid: ab8fab15de24cce4b9b6f8e60bf4cb85, type: 3}
+  m_Resource: {fileID: 8300000, guid: ab8fab15de24cce4b9b6f8e60bf4cb85, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.607
   m_Pitch: 1
@@ -1104,7 +1104,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1771549567}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81a7eed2072e92044a3d06eef650ae51, type: 3}
   m_Name: 
@@ -1144,11 +1144,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26a3f29c7a68297418b1f8406c7249bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vitesseMaximale: 50
+  vitesseMaximale: 100
   acceleration: 20
   sensibiliteSouris: 2
   stabilisation: 1
   correctionDerive: 0.5
+  coefficientTrainee: 0.1
+  coefficientPortance: 0.5
+  vitesseMinimale: 10
+  vitesseDecrochage: 15
+  facteurInertie: 0.8
+  tempsReponseAccelerateur: 2
+  tempsReponseFrein: 1.5
+  facteurTurbulence: 0.05
+  frequenceTurbulence: 1
+  amplitudeTurbulence: 0.2
+  facteurGivrage: 0
+  vitesseGivrage: 0.1
+  altitudeGivrage: 100
+  temperatureGivrage: 0
+  angleRoulisMax: 45
+  vitesseRoulis: 2
+  facteurRoulisVitesse: 0.5
+  facteurRoulisAltitude: 0.3
+  stabilisationRoulis: 1
+  facteurDerapage: 0.2
+  facteurGlissement: 0.1
+  santeMaximale: 100
+  santeActuelle: 100
+  resistanceStructure: 0.8
+  facteurDommageVitesse: 0.01
+  facteurDommageCollision: 10
+  tempsReparation: 5
+  enReparation: 0
   vitesseMaxRotation: 0.8
   accelerationRotation: 0.3
   decelerationRotation: 0.5
@@ -1160,10 +1188,18 @@ MonoBehaviour:
   sonMoteur: {fileID: 1771549568}
   pitchMinMoteur: 0.6
   pitchMaxMoteur: 1.2
+  sonTurbulence: {fileID: 0}
+  sonDommage: {fileID: 0}
+  sonGivrage: {fileID: 0}
+  particulesGivrage: {fileID: 0}
+  particulesDommage: {fileID: 0}
+  lumiereDommage: {fileID: 0}
   cameraAvion: {fileID: 0}
   distanceCameraZ: 2
   hauteurCamera: 5
   vitesseLissageCam: 5
+  amplitudeSecousse: 0.1
+  frequenceSecousse: 10
 --- !u!4 &1771549572 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7d201ab7e81df1f4dbe1d78808603c90, type: 3}
@@ -1499,8 +1535,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 6fc2abcb171599b46b71217e103435fa, type: 3}
-  m_Resource: {fileID: 8300000, guid: 6fc2abcb171599b46b71217e103435fa, type: 3}
+  m_audioClip: {fileID: 8300000, guid: ab8fab15de24cce4b9b6f8e60bf4cb85, type: 3}
+  m_Resource: {fileID: 8300000, guid: ab8fab15de24cce4b9b6f8e60bf4cb85, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.434
   m_Pitch: 1
