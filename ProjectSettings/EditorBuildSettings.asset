@@ -11,10 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/ARessourcesScene1A/FirstScene.unity
     guid: 222b71518e79ff14f82085e47fd1e9cb
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Introduction.unity
     guid: feb4ef17813804c46bb71f2d41addee6
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Scene1B.unity
     guid: 69a7894d76b587ed4839515c62b7f60d
   - enabled: 1
@@ -22,4 +22,7 @@ EditorBuildSettings:
     guid: b5258dab62c704341a73085516cdb208
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 0058b6a5db7ae43ed86be844987440d0, type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 7a293c3621e0046ef8727fb3ebc6aa4b, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: dd37a2d1a9ae84b418d741ecc2c33882, type: 2}
   m_UseUCBPForAssetBundles: 0
