@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class RadioInteractive : MonoBehaviour
 {
@@ -57,6 +59,10 @@ public class RadioInteractive : MonoBehaviour
     [Range(0.1f, 5f)]
     public float sensibiliteMolette = 1.0f;
     
+    [Header("VR")]
+    public XRSimpleInteractable xrInteractable;
+    public InputActionProperty vrRotateAction;
+
     // Variables privées
     private bool estJoueurProche = false;
     private bool estEnInteraction = false;
@@ -96,6 +102,18 @@ public class RadioInteractive : MonoBehaviour
         
         // Créer les sources audio automatiquement
         CreerSourcesAudio();
+
+        if (xrInteractable == null) xrInteractable = GetComponent<XRSimpleInteractable>();
+        if (xrInteractable != null)
+        {
+            xrInteractable.selectEntered.AddListener(OnXRSelect);
+        }
+    }
+
+    private void OnXRSelect(SelectEnterEventArgs args)
+    {
+        if (estEnInteraction) TerminerInteraction();
+        else CommencerInteraction();
     }
     
     // Créer les sources audio automatiquement
@@ -150,8 +168,8 @@ public class RadioInteractive : MonoBehaviour
         // Vérifier si le joueur est à proximité de la radio
         VerifierProximiteJoueur();
         
-        // Vérifier l'interaction avec la radio
-        if (estJoueurProche && !estEnInteraction && Keyboard.current.fKey.wasPressedThisFrame)
+        // Vérifier l'interaction avec la radio (Desktop)
+        if (estJoueurProche && !estEnInteraction && Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
         {
             CommencerInteraction();
         }
@@ -167,8 +185,8 @@ public class RadioInteractive : MonoBehaviour
             // Ajuster le volume du grésillement en fonction de la proximité avec la fréquence correcte
             AjusterGresillement();
             
-            // Permettre au joueur de quitter l'interaction en appuyant sur Échap
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
+            // Permettre au joueur de quitter l'interaction en appuyant sur Échap (Desktop)
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 TerminerInteraction();
             }
@@ -197,7 +215,7 @@ public class RadioInteractive : MonoBehaviour
     }
     
     // Commencer l'interaction avec la radio
-    void CommencerInteraction()
+    public void CommencerInteraction()
     {
         estEnInteraction = true;
         
@@ -208,18 +226,26 @@ public class RadioInteractive : MonoBehaviour
         }
     }
     
-    // Ajuster la fréquence avec la molette de la souris
+    // Ajuster la fréquence avec la molette de la souris ou VR joystick
     void AjusterFrequence()
     {
         float ajustement = 0;
         
-        // Utiliser la molette de la souris pour ajuster la fréquence
-        float scrollDelta = Mouse.current.scroll.y.ReadValue();
-        if (scrollDelta != 0)
+        // VR Input
+        if (vrRotateAction.action != null)
         {
-            // Convertir le défilement de la molette en ajustement de fréquence
-            // Le multiplier par sensibiliteMolette pour permettre l'ajustement de la sensibilité
-            ajustement = scrollDelta * 0.01f * sensibiliteMolette;
+            Vector2 joystickValue = vrRotateAction.action.ReadValue<Vector2>();
+            ajustement = joystickValue.x * 0.1f * sensibiliteMolette;
+        }
+
+        // Desktop Input
+        if (Mouse.current != null)
+        {
+            float scrollDelta = Mouse.current.scroll.y.ReadValue();
+            if (scrollDelta != 0)
+            {
+                ajustement += scrollDelta * 0.01f * sensibiliteMolette;
+            }
         }
         
         // Appliquer l'ajustement
@@ -328,7 +354,7 @@ public class RadioInteractive : MonoBehaviour
     }
     
     // Terminer l'interaction avec la radio
-    void TerminerInteraction()
+    public void TerminerInteraction()
     {
         estEnInteraction = false;
         
@@ -351,6 +377,7 @@ public class RadioInteractive : MonoBehaviour
     // Afficher l'interface utilisateur
     void OnGUI()
     {
+        if (Application.isBatchMode) return;
         // Afficher l'instruction d'interaction si le joueur est proche mais n'interagit pas encore
         if (estJoueurProche && !estEnInteraction)
         {

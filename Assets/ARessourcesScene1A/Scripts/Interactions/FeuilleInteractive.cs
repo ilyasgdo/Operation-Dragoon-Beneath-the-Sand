@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class FeuilleInteractive : MonoBehaviour
 {
@@ -24,7 +26,7 @@ public class FeuilleInteractive : MonoBehaviour
     [Range(0f, 1f)]
     public float volumeSon = 0.7f;
     
-    [Header("Position de la Feuille")]
+    [Header("Position de la Feuille (Desktop)")]
     [Tooltip("La caméra du joueur")]
     public Camera playerCamera;
     
@@ -43,6 +45,9 @@ public class FeuilleInteractive : MonoBehaviour
     
     [Tooltip("Taille du texte d'instruction")]
     public int tailleTexte = 20;
+
+    [Header("VR")]
+    public XRGrabInteractable xrGrabInteractable;
     
     // Variables privées
     private bool estJoueurProche = false;
@@ -69,17 +74,23 @@ public class FeuilleInteractive : MonoBehaviour
         if (audioSource == null)
         {
             audioSource = GetComponent<AudioSource>();
-            
-            // Si aucune source audio n'existe, on en crée une
             if (audioSource == null)
             {
                 audioSource = gameObject.AddComponent<AudioSource>();
                 audioSource.playOnAwake = false;
-                audioSource.spatialBlend = 1f; // Son 3D pour l'effet de papier
+                audioSource.spatialBlend = 1f;
                 audioSource.volume = volumeSon;
             }
         }
         
+        // Setup VR Grab
+        if (xrGrabInteractable == null) xrGrabInteractable = GetComponent<XRGrabInteractable>();
+        if (xrGrabInteractable != null)
+        {
+            xrGrabInteractable.selectEntered.AddListener(OnXRGrab);
+            xrGrabInteractable.selectExited.AddListener(OnXRRelease);
+        }
+
         // Initialiser le style de texte
         styleTexte = new GUIStyle();
         styleTexte.fontSize = tailleTexte;
@@ -87,21 +98,33 @@ public class FeuilleInteractive : MonoBehaviour
         styleTexte.alignment = TextAnchor.MiddleCenter;
         styleTexte.fontStyle = FontStyle.Bold;
     }
+
+    private void OnXRGrab(SelectEnterEventArgs args)
+    {
+        if (paperPickupSound != null) audioSource.PlayOneShot(paperPickupSound);
+        estEnConsultation = true;
+    }
+
+    private void OnXRRelease(SelectExitEventArgs args)
+    {
+        if (paperPutdownSound != null) audioSource.PlayOneShot(paperPutdownSound);
+        estEnConsultation = false;
+    }
     
     // Update est appelé une fois par frame
     void Update()
     {
-        // Vérifier si le joueur est à proximité de la feuille
+        // Vérifier si le joueur est à proximité de la feuille (Desktop)
         VerifierProximiteJoueur();
         
-        // Vérifier l'interaction avec la feuille
-        if (estJoueurProche && !estEnConsultation && Keyboard.current.fKey.wasPressedThisFrame)
+        // Vérifier l'interaction (Desktop)
+        if (estJoueurProche && !estEnConsultation && Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
         {
             CommencerConsultation();
         }
         
-        // Permettre au joueur de quitter la consultation en appuyant sur Échap
-        if (estEnConsultation && Keyboard.current.escapeKey.wasPressedThisFrame)
+        // Permettre au joueur de quitter (Desktop)
+        if (estEnConsultation && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             TerminerConsultation();
         }
@@ -111,114 +134,63 @@ public class FeuilleInteractive : MonoBehaviour
     void VerifierProximiteJoueur()
     {
         GameObject joueur = GameObject.FindGameObjectWithTag(playerTag);
-        
         if (joueur != null)
         {
             float distance = Vector3.Distance(transform.position, joueur.transform.position);
-            
-            // Mettre à jour l'état de proximité du joueur
             estJoueurProche = distance <= distanceInteraction;
-            
-            // Stocker une référence au joueur si on est à proximité
             if (estJoueurProche && objetJoueur == null)
             {
                 objetJoueur = joueur;
                 controleurJoueur = joueur.GetComponent<CharacterController>();
                 inputJoueur = joueur.GetComponent<PlayerInput>();
                 rigidbodyJoueur = joueur.GetComponent<Rigidbody>();
-                
-                // Récupérer tous les scripts potentiels de mouvement
                 scriptsDeplacementJoueur = joueur.GetComponents<MonoBehaviour>();
-                
-                // Si la caméra n'est pas assignée, essayer de la trouver
-                if (playerCamera == null)
-                {
-                    playerCamera = joueur.GetComponentInChildren<Camera>();
-                }
+                if (playerCamera == null) playerCamera = joueur.GetComponentInChildren<Camera>();
             }
         }
     }
     
-    // Commencer la consultation de la feuille
-    void CommencerConsultation()
+    // Commencer la consultation (Desktop)
+    public void CommencerConsultation()
     {
         if (playerCamera == null) return;
-        
         estEnConsultation = true;
-        
-        // Désactiver tous les contrôles du joueur
         DesactiverDeplacementJoueur();
-        
-        
-        
-        // Jouer le son de prise de papier
-        if (paperPickupSound != null)
-        {
-            audioSource.clip = paperPickupSound;
-            audioSource.Play();
-        }
+        if (paperPickupSound != null) audioSource.PlayOneShot(paperPickupSound);
     }
     
-    // Terminer la consultation de la feuille
-    void TerminerConsultation()
+    // Terminer la consultation (Desktop)
+    public void TerminerConsultation()
     {
         estEnConsultation = false;
-        
-       
-        
-        // Réactiver les contrôles du joueur
         ReactiverDeplacementJoueur();
-        
-        // Jouer le son de remise de papier
-        if (paperPutdownSound != null)
-        {
-            audioSource.clip = paperPutdownSound;
-            audioSource.Play();
-        }
+        if (paperPutdownSound != null) audioSource.PlayOneShot(paperPutdownSound);
     }
     
     // Désactiver tous les composants de mouvement du joueur
     void DesactiverDeplacementJoueur()
     {
-        // Désactiver le CharacterController
-        if (controleurJoueur != null)
+        if (UnityEngine.XR.XRSettings.enabled) return;
+
+        if (controleurJoueur != null) controleurJoueur.enabled = false;
+        if (inputJoueur != null) inputJoueur.enabled = false;
+        if (rigidbodyJoueur != null && !rigidbodyJoueur.isKinematic)
         {
-            controleurJoueur.enabled = false;
+            rigidbodyJoueur.linearVelocity = Vector3.zero;
+            rigidbodyJoueur.angularVelocity = Vector3.zero;
+            rigidbodyJoueur.isKinematic = true;
         }
         
-        // Désactiver le PlayerInput
-        if (inputJoueur != null)
-        {
-            inputJoueur.enabled = false;
-        }
-        
-        // Désactiver ou geler le Rigidbody si présent
-        if (rigidbodyJoueur != null)
-        {
-            if (rigidbodyJoueur.isKinematic == false)
-            {
-                rigidbodyJoueur.linearVelocity = Vector3.zero;
-                rigidbodyJoueur.angularVelocity = Vector3.zero;
-                rigidbodyJoueur.isKinematic = true;
-            }
-        }
-        
-        // Désactiver tous les scripts potentiels de mouvement
         if (scriptsDeplacementJoueur != null)
         {
             foreach (MonoBehaviour script in scriptsDeplacementJoueur)
             {
-                // Vérifier si le script est probablement lié au mouvement (par son nom)
                 string nomScript = script.GetType().Name.ToLower();
                 if (nomScript.Contains("move") || nomScript.Contains("controller") || 
                     nomScript.Contains("motor") || nomScript.Contains("character") ||
                     nomScript.Contains("player") || nomScript.Contains("input"))
                 {
-                    // Ne pas désactiver ce script (FeuilleInteractive)
-                    if (script != this)
-                    {
-                        script.enabled = false;
-                    }
+                    if (script != this) script.enabled = false;
                 }
             }
         }
@@ -227,52 +199,32 @@ public class FeuilleInteractive : MonoBehaviour
     // Réactiver tous les composants de mouvement du joueur
     void ReactiverDeplacementJoueur()
     {
-        // Réactiver le CharacterController
-        if (controleurJoueur != null)
-        {
-            controleurJoueur.enabled = true;
-        }
+        if (UnityEngine.XR.XRSettings.enabled) return;
+
+        if (controleurJoueur != null) controleurJoueur.enabled = true;
+        if (inputJoueur != null) inputJoueur.enabled = true;
+        if (rigidbodyJoueur != null) rigidbodyJoueur.isKinematic = false;
         
-        // Réactiver le PlayerInput
-        if (inputJoueur != null)
-        {
-            inputJoueur.enabled = true;
-        }
-        
-        // Réactiver le Rigidbody si présent
-        if (rigidbodyJoueur != null)
-        {
-            rigidbodyJoueur.isKinematic = false;
-        }
-        
-        // Réactiver tous les scripts potentiels de mouvement
         if (scriptsDeplacementJoueur != null)
         {
             foreach (MonoBehaviour script in scriptsDeplacementJoueur)
             {
-                // Vérifier si le script est probablement lié au mouvement (par son nom)
                 string nomScript = script.GetType().Name.ToLower();
                 if (nomScript.Contains("move") || nomScript.Contains("controller") || 
                     nomScript.Contains("motor") || nomScript.Contains("character") ||
                     nomScript.Contains("player") || nomScript.Contains("input"))
                 {
-                    // Ne pas activer ce script (FeuilleInteractive)
-                    if (script != this)
-                    {
-                        script.enabled = true;
-                    }
+                    if (script != this) script.enabled = true;
                 }
             }
         }
     }
     
-    // Dessiner des gizmos pour visualiser la zone d'interaction dans l'éditeur
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, distanceInteraction);
         
-        // Visualiser la position devant la caméra si elle est disponible
         if (playerCamera != null)
         {
             Gizmos.color = Color.blue;
@@ -283,29 +235,4 @@ public class FeuilleInteractive : MonoBehaviour
             Gizmos.DrawLine(transform.position, positionCible);
         }
     }
-    
-    // Afficher le texte d'instruction à l'écran
-    void OnGUI()
-    {
-        // Afficher le texte d'instruction uniquement pendant la consultation
-        if (estEnConsultation)
-        {
-            // Créer un fond semi-transparent pour le texte
-            GUI.backgroundColor = new Color(0, 0, 0, 0.5f);
-            
-            // Calculer la position du texte (centré en bas de l'écran)
-            float largeurTexte = 300;
-            float hauteurTexte = 30;
-            Rect positionTexte = new Rect(
-                (Screen.width - largeurTexte) / 2,
-                Screen.height - hauteurTexte - 50,
-                largeurTexte,
-                hauteurTexte
-            );
-            
-            // Dessiner le texte avec une ombre pour meilleure lisibilité
-            GUI.Box(positionTexte, "");
-            GUI.Label(positionTexte, texteQuitter, styleTexte);
-        }
     }
-}

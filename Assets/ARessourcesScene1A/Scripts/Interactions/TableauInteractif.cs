@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class TableauInteractif : MonoBehaviour
 {
@@ -27,7 +29,7 @@ public class TableauInteractif : MonoBehaviour
     [Tooltip("Continuer à jouer le son même si le joueur quitte l'interaction")]
     public bool continuerNarrationEnSortant = true;
     
-    [Header("Animation de Caméra")]
+    [Header("Animation de Caméra (Desktop)")]
     [Tooltip("La caméra du joueur qui sera animée")]
     public Camera playerCamera;
     
@@ -49,6 +51,9 @@ public class TableauInteractif : MonoBehaviour
     
     [Tooltip("Taille du texte d'instruction")]
     public int tailleTexte = 20;
+
+    [Header("VR")]
+    public XRSimpleInteractable xrInteractable;
     
     // Variables privées
     private bool isPlayerNearby = false;
@@ -103,6 +108,18 @@ public class TableauInteractif : MonoBehaviour
         styleTexte.normal.textColor = Color.white;
         styleTexte.alignment = TextAnchor.MiddleCenter;
         styleTexte.fontStyle = FontStyle.Bold;
+
+        if (xrInteractable == null) xrInteractable = GetComponent<XRSimpleInteractable>();
+        if (xrInteractable != null)
+        {
+            xrInteractable.selectEntered.AddListener(OnXRSelect);
+        }
+    }
+
+    private void OnXRSelect(SelectEnterEventArgs args)
+    {
+        if (isInteracting) StopInteraction();
+        else StartInteraction();
     }
     
     // Update est appelé une fois par frame
@@ -111,8 +128,8 @@ public class TableauInteractif : MonoBehaviour
         // Vérifier si le joueur est à proximité du tableau
         CheckPlayerProximity();
         
-        // Vérifier l'interaction avec le tableau
-        if (isPlayerNearby && !isInteracting && Keyboard.current.fKey.wasPressedThisFrame)
+        // Vérifier l'interaction avec le tableau (Desktop)
+        if (isPlayerNearby && !isInteracting && Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
         {
             StartInteraction();
         }
@@ -120,7 +137,12 @@ public class TableauInteractif : MonoBehaviour
         // Gérer l'animation de zoom si l'interaction est en cours
         if (isInteracting)
         {
-            HandleZoomAnimation();
+            // Don't animate camera in VR to avoid nausea
+            bool isVR = UnityEngine.XR.XRSettings.enabled;
+            if (!isVR)
+            {
+                HandleZoomAnimation();
+            }
             
             // Vérifier si l'audio est terminé pour arrêter l'interaction
             if (!audioSource.isPlaying && audioSource.time > 0)
@@ -128,8 +150,8 @@ public class TableauInteractif : MonoBehaviour
                 StopInteraction();
             }
             
-            // Permettre au joueur de quitter l'interaction en appuyant sur Échap
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
+            // Permettre au joueur de quitter l'interaction (Desktop)
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 StopInteraction();
             }
@@ -179,15 +201,18 @@ public class TableauInteractif : MonoBehaviour
     }
     
     // Démarrer l'interaction avec le tableau
-    void StartInteraction()
+    public void StartInteraction()
     {
-        if (playerCamera == null || narrationAudio == null) return;
+        if (narrationAudio == null) return;
         
         isInteracting = true;
         
-        // Sauvegarder la position et rotation originales de la caméra
-        originalCameraPosition = playerCamera.transform.position;
-        originalCameraRotation = playerCamera.transform.rotation;
+        if (playerCamera != null)
+        {
+            // Sauvegarder la position et rotation originales de la caméra
+            originalCameraPosition = playerCamera.transform.position;
+            originalCameraRotation = playerCamera.transform.rotation;
+        }
         
         // Désactiver tous les contrôles du joueur
         DisablePlayerMovement();
@@ -199,16 +224,11 @@ public class TableauInteractif : MonoBehaviour
         // Enregistrer l'interaction avec ce tableau dans le système d'objectifs
         if (systemeObjectifs != null && !string.IsNullOrEmpty(tableauId))
         {
-            Debug.Log("Interaction avec le tableau: " + tableauId + " - Enregistrement dans le système d'objectifs");
             systemeObjectifs.EnregistrerTableauVisite(tableauId);
-        }
-        else
-        {
-            Debug.LogWarning("Impossible d'enregistrer l'interaction avec le tableau: systemeObjectifs=" + (systemeObjectifs != null) + ", tableauId=" + tableauId);
         }
     }
     
-    // Gérer l'animation de zoom de la caméra
+    // Gérer l'animation de zoom de la caméra (Desktop only)
     void HandleZoomAnimation()
     {
         if (playerCamera == null || zoomTarget == null) return;
@@ -236,16 +256,20 @@ public class TableauInteractif : MonoBehaviour
     }
     
     // Arrêter l'interaction avec le tableau
-    void StopInteraction()
+    public void StopInteraction()
     {
         isInteracting = false;
         
         // Restaurer la position et rotation originales de la caméra
         if (playerCamera != null)
         {
-            playerCamera.transform.position = originalCameraPosition;
-            playerCamera.transform.rotation = originalCameraRotation;
-            playerCamera.fieldOfView = normalFOV;
+            bool isVR = UnityEngine.XR.XRSettings.enabled;
+            if (!isVR)
+            {
+                playerCamera.transform.position = originalCameraPosition;
+                playerCamera.transform.rotation = originalCameraRotation;
+                playerCamera.fieldOfView = normalFOV;
+            }
         }
         
         // Réactiver les contrôles du joueur
@@ -261,45 +285,28 @@ public class TableauInteractif : MonoBehaviour
     // Désactiver tous les composants de mouvement du joueur
     void DisablePlayerMovement()
     {
-        // Désactiver le CharacterController
-        if (playerController != null)
+        bool isVR = UnityEngine.XR.XRSettings.enabled;
+        if (isVR) return; // Keep movement in VR or handle separately
+
+        if (playerController != null) playerController.enabled = false;
+        if (playerInput != null) playerInput.enabled = false;
+        if (playerRigidbody != null && !playerRigidbody.isKinematic)
         {
-            playerController.enabled = false;
+            playerRigidbody.linearVelocity = Vector3.zero;
+            playerRigidbody.angularVelocity = Vector3.zero;
+            playerRigidbody.isKinematic = true;
         }
         
-        // Désactiver le PlayerInput
-        if (playerInput != null)
-        {
-            playerInput.enabled = false;
-        }
-        
-        // Désactiver ou geler le Rigidbody si présent
-        if (playerRigidbody != null)
-        {
-            if (playerRigidbody.isKinematic == false)
-            {
-                playerRigidbody.linearVelocity = Vector3.zero;
-                playerRigidbody.angularVelocity = Vector3.zero;
-                playerRigidbody.isKinematic = true;
-            }
-        }
-        
-        // Désactiver tous les scripts potentiels de mouvement
         if (playerMovementScripts != null)
         {
             foreach (MonoBehaviour script in playerMovementScripts)
             {
-                // Vérifier si le script est probablement lié au mouvement (par son nom)
                 string scriptName = script.GetType().Name.ToLower();
                 if (scriptName.Contains("move") || scriptName.Contains("controller") || 
                     scriptName.Contains("motor") || scriptName.Contains("character") ||
                     scriptName.Contains("player") || scriptName.Contains("input"))
                 {
-                    // Ne pas désactiver ce script (TableauInteractif)
-                    if (script != this)
-                    {
-                        script.enabled = false;
-                    }
+                    if (script != this) script.enabled = false;
                 }
             }
         }
@@ -308,46 +315,28 @@ public class TableauInteractif : MonoBehaviour
     // Réactiver tous les composants de mouvement du joueur
     void EnablePlayerMovement()
     {
-        // Réactiver le CharacterController
-        if (playerController != null)
-        {
-            playerController.enabled = true;
-        }
+        bool isVR = UnityEngine.XR.XRSettings.enabled;
+        if (isVR) return;
+
+        if (playerController != null) playerController.enabled = true;
+        if (playerInput != null) playerInput.enabled = true;
+        if (playerRigidbody != null) playerRigidbody.isKinematic = false;
         
-        // Réactiver le PlayerInput
-        if (playerInput != null)
-        {
-            playerInput.enabled = true;
-        }
-        
-        // Réactiver le Rigidbody si présent
-        if (playerRigidbody != null)
-        {
-            playerRigidbody.isKinematic = false;
-        }
-        
-        // Réactiver tous les scripts potentiels de mouvement
         if (playerMovementScripts != null)
         {
             foreach (MonoBehaviour script in playerMovementScripts)
             {
-                // Vérifier si le script est probablement lié au mouvement (par son nom)
                 string scriptName = script.GetType().Name.ToLower();
                 if (scriptName.Contains("move") || scriptName.Contains("controller") || 
                     scriptName.Contains("motor") || scriptName.Contains("character") ||
                     scriptName.Contains("player") || scriptName.Contains("input"))
                 {
-                    // Ne pas activer ce script (TableauInteractif)
-                    if (script != this)
-                    {
-                        script.enabled = true;
-                    }
+                    if (script != this) script.enabled = true;
                 }
             }
         }
     }
     
-    // Dessiner des gizmos pour visualiser la zone d'interaction dans l'éditeur
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -361,37 +350,25 @@ public class TableauInteractif : MonoBehaviour
         }
     }
     
-    // S'assurer que le tableau a un ID unique au démarrage
     private void OnEnable()
     {
-        // Si le tableau n'a pas d'ID, en générer un
         if (string.IsNullOrEmpty(tableauId))
         {
             tableauId = "tableau_" + gameObject.GetInstanceID();
-            Debug.Log("ID généré pour tableau: " + tableauId);
         }
         
-        // Trouver le système d'objectifs s'il n'est pas déjà assigné
         if (systemeObjectifs == null)
         {
             systemeObjectifs = FindObjectOfType<SystemeObjectifs>();
-            if (systemeObjectifs != null)
-            {
-                Debug.Log("SystemeObjectifs trouvé et assigné automatiquement au tableau: " + tableauId);
-            }
         }
     }
     
-    // Afficher le texte d'instruction à l'écran
     void OnGUI()
     {
-        // Afficher le texte d'instruction uniquement pendant l'interaction
+        if (Application.isBatchMode) return;
         if (isInteracting)
         {
-            // Créer un fond semi-transparent pour le texte
             GUI.backgroundColor = new Color(0, 0, 0, 0.5f);
-            
-            // Calculer la position du texte (centré en bas de l'écran)
             float largeurTexte = 300;
             float hauteurTexte = 30;
             Rect positionTexte = new Rect(
@@ -400,8 +377,6 @@ public class TableauInteractif : MonoBehaviour
                 largeurTexte,
                 hauteurTexte
             );
-            
-            // Dessiner le texte avec une ombre pour meilleure lisibilité
             GUI.Box(positionTexte, "");
             GUI.Label(positionTexte, texteQuitter, styleTexte);
         }

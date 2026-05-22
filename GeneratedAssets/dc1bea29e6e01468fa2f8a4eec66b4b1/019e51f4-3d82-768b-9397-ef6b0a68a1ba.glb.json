@@ -1,0 +1,23 @@
+{
+    "asset": "dc1bea29e6e01468fa2f8a4eec66b4b1",
+    "fileName": "019e51f4-3d82-768b-9397-ef6b0a68a1ba.glb",
+    "prompt": "A realistic human hand 3D model, optimized for VR.",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "42abfab2dadf242dabdb6dabdc18e620",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}
