@@ -1,0 +1,15 @@
+{
+    "asset": "f0dc79b308cad4375b2888525a99801e",
+    "fileName": "019e5642-91a8-7b22-b4c4-69c86beb0a34.wav",
+    "prompt": "Crisp paper rustling sound, grabbing a document, realistic parchment handling",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 1.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

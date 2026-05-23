@@ -1,0 +1,15 @@
+{
+    "asset": "55eb2dc9d9857494f9184df893632154",
+    "fileName": "019e5642-a60f-7982-b69a-63ee70c6ad0c.wav",
+    "prompt": "Powerful gunshot sound, WWII rifle M1 Garand style, echoey bunker environment",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 2.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

@@ -199,13 +199,13 @@ public class TableauInteractif : MonoBehaviour
                 
                 // Récupérer tous les scripts potentiels de mouvement
                 playerMovementScripts = player.GetComponents<MonoBehaviour>();
-                
-                // Si la caméra n'est pas assignée, essayer de la trouver
-                if (playerCamera == null)
-                {
-                    playerCamera = player.GetComponentInChildren<Camera>();
-                }
             }
+        }
+
+        // Always try to find the camera if null
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
         }
     }
     

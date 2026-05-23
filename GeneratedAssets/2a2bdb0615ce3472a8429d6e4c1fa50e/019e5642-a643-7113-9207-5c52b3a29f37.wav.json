@@ -1,0 +1,15 @@
+{
+    "asset": "2a2bdb0615ce3472a8429d6e4c1fa50e",
+    "fileName": "019e5642-a643-7113-9207-5c52b3a29f37.wav",
+    "prompt": "Heavy mechanical metal lock click, opening a secure door, solid industrial sound",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 1.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}
