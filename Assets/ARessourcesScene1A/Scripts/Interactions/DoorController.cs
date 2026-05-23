@@ -84,6 +84,7 @@ public class DoorController : MonoBehaviour
         xrInteractable = GetComponent<XRSimpleInteractable>();
         if (xrInteractable == null) xrInteractable = gameObject.AddComponent<XRSimpleInteractable>();
         xrInteractable.selectEntered.AddListener(OnXRSelect);
+        xrInteractable.hoverEntered.AddListener(OnXRHover);
 
         if (usePhysicsInVR)
         {
@@ -126,14 +127,26 @@ public class DoorController : MonoBehaviour
 
     private void OnXRSelect(SelectEnterEventArgs args)
     {
+        HandleVRInteraction();
+    }
+
+    private void OnXRHover(HoverEnterEventArgs args)
+    {
+        // Only trigger by hand (direct interactor) touching, not ray
+        if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor)
+        {
+            HandleVRInteraction();
+        }
+    }
+
+    private void HandleVRInteraction()
+    {
         if (requiresCode && isLocked)
         {
             if (audioSource != null && doorLockedSound != null)
             {
                 audioSource.PlayOneShot(doorLockedSound);
             }
-            // In VR, we might need a UI panel or world-space keypad.
-            // For now, we'll keep the logic but the GUI won't show in headset.
         }
         else if (!usePhysicsInVR)
         {

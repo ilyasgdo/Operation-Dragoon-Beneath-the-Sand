@@ -107,10 +107,19 @@ public class RadioInteractive : MonoBehaviour
         if (xrInteractable != null)
         {
             xrInteractable.selectEntered.AddListener(OnXRSelect);
+            xrInteractable.hoverEntered.AddListener(OnXRHover);
         }
-    }
+        }
 
-    private void OnXRSelect(SelectEnterEventArgs args)
+        private void OnXRHover(HoverEnterEventArgs args)
+        {
+        if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor && !estEnInteraction)
+        {
+            CommencerInteraction();
+        }
+        }
+
+        private void OnXRSelect(SelectEnterEventArgs args)
     {
         if (estEnInteraction) TerminerInteraction();
         else CommencerInteraction();

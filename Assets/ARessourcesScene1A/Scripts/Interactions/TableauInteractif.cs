@@ -113,10 +113,19 @@ public class TableauInteractif : MonoBehaviour
         if (xrInteractable != null)
         {
             xrInteractable.selectEntered.AddListener(OnXRSelect);
+            xrInteractable.hoverEntered.AddListener(OnXRHover);
         }
-    }
+        }
 
-    private void OnXRSelect(SelectEnterEventArgs args)
+        private void OnXRHover(HoverEnterEventArgs args)
+        {
+        if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor && !isInteracting)
+        {
+            StartInteraction();
+        }
+        }
+
+        private void OnXRSelect(SelectEnterEventArgs args)
     {
         if (isInteracting) StopInteraction();
         else StartInteraction();
