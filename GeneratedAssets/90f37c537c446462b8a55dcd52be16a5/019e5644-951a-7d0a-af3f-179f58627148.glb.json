@@ -1,0 +1,23 @@
+{
+    "asset": "90f37c537c446462b8a55dcd52be16a5",
+    "fileName": "019e5644-951a-7d0a-af3f-179f58627148.glb",
+    "prompt": "Vintage WWII military flashlight, realistic metal textures, high detail, 3D game model",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "80f615e21b2ef4cd3987e840ddf3de15",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}

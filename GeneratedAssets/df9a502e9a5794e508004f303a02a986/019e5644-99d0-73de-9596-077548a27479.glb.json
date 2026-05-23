@@ -1,0 +1,23 @@
+{
+    "asset": "df9a502e9a5794e508004f303a02a986",
+    "fileName": "019e5644-99d0-73de-9596-077548a27479.glb",
+    "prompt": "Military merit medal, bronze with cloth ribbon, WWII style, high detail collection item",
+    "negativePrompt": "",
+    "model": "model3d-tripo-p1",
+    "modelName": "Tripo P1",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "promptImageReferenceGuid": "2cc6491dd996a4432b067de8b3a6b893",
+    "modelReferenceGuid": "",
+    "multiviewFrontGuid": "",
+    "multiviewBackGuid": "",
+    "multiviewLeftGuid": "",
+    "multiviewRightGuid": "",
+    "multiviewTopGuid": "",
+    "multiviewBottomGuid": "",
+    "multiviewLeftFrontGuid": "",
+    "multiviewRightFrontGuid": "",
+    "faceLimit": -1
+}
