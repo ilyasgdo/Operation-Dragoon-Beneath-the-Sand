@@ -1,0 +1,15 @@
+{
+    "asset": "27c32568d693a4341976375b8ca653fa",
+    "fileName": "019e5649-53de-737d-842a-d1cf4ab01e14.wav",
+    "prompt": "Whispered spooky voice: The sand... it's getting everywhere...",
+    "negativePrompt": "",
+    "model": "elevenlabs-multilingual-v2",
+    "modelName": "ElevenLabs Multilingual V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 3.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": "Alice"
+}

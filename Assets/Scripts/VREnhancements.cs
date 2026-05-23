@@ -11,13 +11,26 @@ namespace VREnhancements {
         [Range(0, 1)] public float intensity = 0.5f;
         public float duration = 0.1f;
 
-        public void TriggerHaptic(SelectEnterEventArgs args) {
-            Trigger(args.interactorObject);
+        private XRBaseInteractable interactable;
+
+        void Awake() {
+            interactable = GetComponent<XRBaseInteractable>();
+            if (interactable != null) {
+                interactable.selectEntered.AddListener(OnSelect);
+                interactable.activated.AddListener(OnActivate);
+            }
         }
 
-        public void Trigger(IXRInteractor interactor) {
+        private void OnSelect(SelectEnterEventArgs args) => Trigger(args.interactorObject);
+        private void OnActivate(ActivateEventArgs args) => Trigger(args.interactorObject, 0.8f, 0.2f);
+
+        public void TriggerHaptic(SelectEnterEventArgs args) => Trigger(args.interactorObject);
+
+        public void Trigger(IXRInteractor interactor, float customIntensity = -1, float customDuration = -1) {
             if (interactor is XRBaseInputInteractor baseInputInteractor) {
-                baseInputInteractor.SendHapticImpulse(intensity, duration);
+                float i = customIntensity > 0 ? customIntensity : intensity;
+                float d = customDuration > 0 ? customDuration : duration;
+                baseInputInteractor.SendHapticImpulse(i, d);
             }
         }
     }
@@ -27,23 +40,59 @@ namespace VREnhancements {
         public Light targetLight;
         public float minIntensity = 0.2f;
         public float maxIntensity = 1.0f;
-        public float flickerSpeed = 0.1f;
         public float glitchChance = 0.05f;
+        public AudioClip humSound;
+        private AudioSource audioSource;
 
         private float baseIntensity;
 
         void Start() {
             if (targetLight == null) targetLight = GetComponent<Light>();
             if (targetLight != null) baseIntensity = targetLight.intensity;
+            
+            if (humSound != null) {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.clip = humSound;
+                audioSource.loop = true;
+                audioSource.spatialBlend = 1.0f;
+                audioSource.volume = 0.2f;
+                audioSource.Play();
+            }
         }
 
         void Update() {
             if (targetLight == null) return;
             
             if (Random.value < glitchChance) {
-                targetLight.intensity = Random.Range(minIntensity, maxIntensity);
+                float val = Random.Range(minIntensity, maxIntensity);
+                targetLight.intensity = val;
+                if (audioSource != null) audioSource.volume = val * 0.3f;
             } else {
                 targetLight.intensity = Mathf.Lerp(targetLight.intensity, baseIntensity, Time.deltaTime * 5);
+            }
+        }
+    }
+
+    // --- FUNCTIONAL FLASHLIGHT ---
+    public class VRFlashlight : MonoBehaviour {
+        public Light flashlightLight;
+        public AudioSource audioSource;
+        public AudioClip clickSound;
+        private bool isOn = true;
+
+        void Awake() {
+            var grab = GetComponent<XRGrabInteractable>();
+            if (grab != null) grab.activated.AddListener(ToggleFlashlight);
+            if (flashlightLight == null) flashlightLight = GetComponentInChildren<Light>();
+        }
+
+        void ToggleFlashlight(ActivateEventArgs args) {
+            isOn = !isOn;
+            if (flashlightLight != null) flashlightLight.enabled = isOn;
+            if (audioSource != null && clickSound != null) audioSource.PlayOneShot(clickSound);
+            
+            if (args.interactorObject is XRBaseInputInteractor interactor) {
+                interactor.SendHapticImpulse(0.5f, 0.05f);
             }
         }
     }
@@ -54,17 +103,13 @@ namespace VREnhancements {
         public ParticleSystem muzzleFlash;
         public AudioSource audioSource;
         public AudioClip shootSound;
-        public float shootForce = 100f;
-        public float range = 50f;
+        public float shootForce = 500f;
+        public float range = 100f;
         public LayerMask impactLayers = -1;
 
-        private XRGrabInteractable grabInteractable;
-
         void Awake() {
-            grabInteractable = GetComponent<XRGrabInteractable>();
-            if (grabInteractable != null) {
-                grabInteractable.activated.AddListener(OnTriggerPressed);
-            }
+            var grab = GetComponent<XRGrabInteractable>();
+            if (grab != null) grab.activated.AddListener(OnTriggerPressed);
         }
 
         void OnTriggerPressed(ActivateEventArgs args) {
@@ -75,12 +120,10 @@ namespace VREnhancements {
             if (muzzleFlash != null) muzzleFlash.Play();
             if (audioSource != null && shootSound != null) audioSource.PlayOneShot(shootSound);
 
-            // Haptic feedback
             if (interactor is XRBaseInputInteractor controller) {
-                controller.SendHapticImpulse(0.7f, 0.15f);
+                controller.SendHapticImpulse(0.8f, 0.2f);
             }
 
-            // Raycast for impact
             if (muzzleTransform != null) {
                 if (Physics.Raycast(muzzleTransform.position, muzzleTransform.forward, out RaycastHit hit, range, impactLayers)) {
                     Rigidbody hitRb = hit.collider.GetComponent<Rigidbody>();
@@ -96,17 +139,18 @@ namespace VREnhancements {
     public class CollectionItem : MonoBehaviour {
         public string itemName = "Medal";
         public AudioClip collectSound;
-        private AudioSource audioSource;
 
-        void Start() {
-            audioSource = GetComponent<AudioSource>();
-            if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+        void Awake() {
+            var grab = GetComponent<XRGrabInteractable>();
+            if (grab != null) grab.selectEntered.AddListener(OnGrabbed);
         }
 
-        public void OnCollected() {
+        private void OnGrabbed(SelectEnterEventArgs args) {
+            // In a real game, add to UI or counter
             if (collectSound != null) AudioSource.PlayClipAtPoint(collectSound, transform.position);
-            Debug.Log("Collected item: " + itemName);
-            gameObject.SetActive(false); // Hide it
+            Debug.Log("Item Collected: " + itemName);
+            // We don't destroy it immediately so the user can see it in hand, 
+            // but we could disable its 'collectible' state.
         }
     }
 }

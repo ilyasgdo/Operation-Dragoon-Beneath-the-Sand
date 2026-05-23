@@ -1,20 +1,21 @@
-# Rapport d'implémentation VR - Améliorations
+# Rapport d'implémentation VR - Complet
 
-## 1. Ambiance Sonore
-- **Bunker Ambiance** : Un fond sonore spatialisé de bunker militaire WWII a été ajouté sur l'XR Origin.
-- **SFX Interactions** : Nouveaux sons de déverrouillage, froissement de papier et tirs d'armes.
+## 1. Ambiance & Audio Immersif
+- **Fond Sonore (3D)** : Ambiance de bunker militaire WWII (vent, radio, calme oppressant).
+- **Interaction SFX** : Sons de papier (Feuilles), Sons de métal (Portes/Flashlight), Sons de tir (Armes).
 
-## 2. Nouveaux Objets Interactifs
-- **Lampe Torche VR** : Un modèle 3D de lampe WWII fonctionnelle. Elle peut être portée et éclairer les zones sombres.
-- **Médaille de Collection** : Un objet à trouver dans la scène. Elle possède un script de collection.
+## 2. Inventaire & Objets
+- **Lampe Torche (Flashlight)** : Nouveau modèle 3D. Cliquer sur la gâchette (Trigger) pour Allumer/Éteindre.
+- **Médailles de Collection** : Objets rares cachés à ramasser.
+- **Système de Ceinture** : Deux emplacements (Sockets) sur les hanches pour ranger l'arme ou la lampe.
 
-## 3. Mécaniques VR avancées
-- **Tir (MP40)** : L'arme MP40 est maintenant fonctionnelle. Appuie sur la gâchette pour tirer (son + flash + vibration).
-- **Inventaire de Ceinture** : Deux 'Sockets' ont été placés au niveau de la taille du joueur pour ranger des objets.
-- **Retour Haptique** : Toutes les interactions (saisie, clic) déclenchent désormais une vibration légère dans les manettes.
+## 3. Système d'Armement
+- **MP40 Fonctionnelle** : Système de tir avec muzzle flash, recul haptique et force physique sur les objets touchés.
 
-## 4. Effets Visuels
-- **Éclairage Buggé** : Un script de clignotement aléatoire (flicker) a été ajouté sur une lumière de la scène pour simuler une installation électrique défaillante.
+## 4. Sensations VR (Haptiques)
+- **Retour de Force** : Chaque saisie, clic, tir ou contact déclenche une vibration spécifique (intensité variable).
+
+## 5. Environnement Dynamique
+- **Lumières Défectueuses** : Certaines lampes grésillent et clignotent aléatoirement pour renforcer l'atmosphère bunker.
 
 --- 
-*Implémenté par l'assistant Unity.*
