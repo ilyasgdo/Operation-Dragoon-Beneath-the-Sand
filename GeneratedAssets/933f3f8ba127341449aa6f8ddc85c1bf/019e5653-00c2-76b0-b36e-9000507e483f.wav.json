@@ -1,0 +1,15 @@
+{
+    "asset": "933f3f8ba127341449aa6f8ddc85c1bf",
+    "fileName": "019e5653-00c2-76b0-b36e-9000507e483f.wav",
+    "prompt": "A ghostly whisper saying: You shouldn't have come here... this bunker is my tomb.",
+    "negativePrompt": "",
+    "model": "elevenlabs-multilingual-v2",
+    "modelName": "ElevenLabs Multilingual V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 3.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": "Adam"
+}
