@@ -61784,8 +61784,8 @@ MonoBehaviour:
   flashbackDuration: 2.51
   timeSlowdownFactor: 0.2
   movementSlowdownFactor: 0.15
-  hapticIntensity: 0.5
-  hapticDuration: 0.1
+  hapticIntensity: 0.83
+  hapticDuration: 0.4
   flashbackVideos:
   - {fileID: 32900000, guid: b41b839ccd6c7a945995223ff0108f70, type: 3}
   - {fileID: 32900000, guid: 2e5149a22f2db954894ba8d46d9d8617, type: 3}
@@ -61802,12 +61802,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 806704694}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a53e66005f3f547b684b83ec2cc10d82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   actionAsset: {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+  walkSpeed: 2
+  runSpeed: 5
 --- !u!114 &806704702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61831,7 +61833,7 @@ MonoBehaviour:
   m_LeftHandMoveAction:
     m_UseReference: 0
     m_Action:
-      m_Name: 
+      m_Name: Left Hand Move
       m_Type: 0
       m_ExpectedControlType: 
       m_Id: 90700ff8-23d5-4fd0-8aa3-c36fadb017c4
@@ -61886,7 +61888,7 @@ MonoBehaviour:
   m_RightHandSnapTurnAction:
     m_UseReference: 0
     m_Action:
-      m_Name: 
+      m_Name: Right Hand Snap Turn
       m_Type: 0
       m_ExpectedControlType: 
       m_Id: 5f64310b-583a-4511-8120-fb28bf13767d
