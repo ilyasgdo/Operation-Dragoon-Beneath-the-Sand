@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class DoorController : MonoBehaviour
 {
@@ -17,53 +18,51 @@ public class DoorController : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip doorOpenSound;
     public AudioClip doorCloseSound;
-    public AudioClip doorLockedSound; // Son quand la porte est verrouillée
-    public AudioClip doorUnlockSound; // Son quand la porte est déverrouillée
-    public AudioClip codeErrorSound; // Son quand le code est incorrect
+    public AudioClip doorLockedSound;
+    public AudioClip doorUnlockSound;
+    public AudioClip codeErrorSound;
     [Range(0f, 1f)]
     public float volume = 1.0f;
     
     [Header("Système de Verrouillage")]
-    public bool requiresCode = true; // Si la porte nécessite un code pour s'ouvrir
-    public string correctCode = "19391945"; // Le code correct par défaut
-    public bool isLocked = true; // Si la porte est verrouillée
-    private string currentInputCode = ""; // Le code actuellement saisi
-    public int maxCodeLength = 8; // Longueur maximale du code
-    public float resetCodeTime = 5f; // Temps avant réinitialisation du code saisi
-    private float lastInputTime; // Dernière fois qu'un chiffre a été saisi
+    public bool requiresCode = true;
+    public string correctCode = "19391945";
+    public bool isLocked = true;
+    private string currentInputCode = "";
+    public int maxCodeLength = 8;
+    public float resetCodeTime = 5f;
+    private float lastInputTime;
     
     [Header("Système d'Objectifs")]
-    public string doorId = "porte_principale"; // Identifiant unique de la porte
-    public SystemeObjectifs systemeObjectifs; // Référence au système d'objectifs
-    public bool estObjectif = false; // Si trouver le code de cette porte est un objectif
-    private bool objectifComplete = false; // Si l'objectif a été complété
+    public string doorId = "porte_principale";
+    public SystemeObjectifs systemeObjectifs;
+    public bool estObjectif = false;
+    private bool objectifComplete = false;
     
-    [Header("Débogage")]
-    public bool showDebugRay = true;
-    public LayerMask raycastLayers = -1; // Tous les layers par défaut
-    
-    [Header("VR Physics")]
+    [Header("VR Physics & Feedback")]
     public bool usePhysicsInVR = true;
+    public float hapticIntensity = 0.2f;
+    public float hapticDuration = 0.1f;
+    public float soundVelocityThreshold = 0.1f;
+    
     private Rigidbody rb;
     private HingeJoint hinge;
     private XRBaseInteractable xrInteractable;
+    private float lastHingeAngle;
+    private bool isBeingGrabbed = false;
 
     private bool isOpen = false;
     private bool isRotating = false;
     private Quaternion initialRotation;
     private Quaternion targetRotation;
     
-    // Style pour l'interface utilisateur
     private GUIStyle codeStyle;
     private GUIStyle statusStyle;
-    
+    public LayerMask raycastLayers = -1;
+
     void Start()
     {
-        // Si aucun pivot n'est spécifié, utiliser cet objet
-        if (doorPivot == null)
-        {
-            doorPivot = transform;
-        }
+        if (doorPivot == null) doorPivot = transform;
         
         initialRotation = doorPivot.rotation;
         targetRotation = Quaternion.Euler(rotationAxis * openAngle) * initialRotation;
@@ -81,8 +80,9 @@ public class DoorController : MonoBehaviour
         }
         
         SetupVRInteraction();
-
-        // Initialiser les styles pour l'interface utilisateur (Desktop only)
+        if (hinge != null) lastHingeAngle = hinge.angle;
+        
+        // Desktop GUI Styles
         codeStyle = new GUIStyle();
         codeStyle.fontSize = 24;
         codeStyle.normal.textColor = Color.white;
@@ -97,22 +97,12 @@ public class DoorController : MonoBehaviour
         
         if (estObjectif && systemeObjectifs != null)
         {
-            string idObjectif = "trouver_code_" + doorId;
-            systemeObjectifs.AjouterObjectif(idObjectif, "Trouver le code de la porte: " + doorId);
-        }
-    }
-
-    void OnDestroy()
-    {
-        if (Application.isPlaying)
-        {
-            Debug.Log("Door " + gameObject.name + " is being DESTROYED!");
+            systemeObjectifs.AjouterObjectif("trouver_code_" + doorId, "Trouver le code de la porte: " + doorId);
         }
     }
 
     void SetupVRInteraction()
     {
-        // Clean up old interactables to avoid conflicts
         var oldSimple = GetComponent<XRSimpleInteractable>();
         var oldGrab = GetComponent<XRGrabInteractable>();
 
@@ -131,79 +121,97 @@ public class DoorController : MonoBehaviour
 
             rb = GetComponent<Rigidbody>();
             if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+            
             rb.isKinematic = isLocked;
             rb.useGravity = false;
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-            rb.mass = 1f;
-            rb.angularDamping = 5f;
+            rb.mass = 10f; 
+            rb.angularDamping = 2f;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
 
-            // Ensure MeshColliders are convex for physics
             var meshCollider = GetComponent<MeshCollider>();
-            if (meshCollider != null)
-            {
-                meshCollider.convex = true;
-            }
+            if (meshCollider != null) meshCollider.convex = true;
 
             hinge = GetComponent<HingeJoint>();
             if (hinge == null) hinge = gameObject.AddComponent<HingeJoint>();
             
-            Vector3 anchorPos = transform.InverseTransformPoint(doorPivot.position);
-            if (anchorPos.magnitude < 0.1f)
+            // Smart Anchor detection
+            Vector3 anchorPos = Vector3.zero;
+            if (doorPivot != null && doorPivot != transform)
             {
-                var filter = GetComponentInChildren<MeshFilter>();
-                if (filter != null)
+                anchorPos = transform.InverseTransformPoint(doorPivot.position);
+            }
+            else
+            {
+                var meshFilter = GetComponentInChildren<MeshFilter>();
+                if (meshFilter != null)
                 {
-                    var bounds = filter.sharedMesh.bounds;
-                    anchorPos = new Vector3(bounds.min.x, 0, 0);
+                    var bounds = meshFilter.sharedMesh.bounds;
+                    float maxDim = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+                    if (Mathf.Abs(bounds.size.y - maxDim) < 0.01f) {
+                        hinge.axis = Vector3.up;
+                        anchorPos = new Vector3(bounds.min.x, 0, 0);
+                    } else if (Mathf.Abs(bounds.size.z - maxDim) < 0.01f) {
+                        hinge.axis = Vector3.forward;
+                        anchorPos = new Vector3(bounds.min.x, 0, 0);
+                    } else {
+                        hinge.axis = Vector3.right;
+                        anchorPos = new Vector3(0, 0, bounds.min.z);
+                    }
                 }
             }
 
             hinge.anchor = anchorPos;
-            hinge.axis = Vector3.up; 
+            if (hinge.axis == Vector3.zero) hinge.axis = rotationAxis; 
             hinge.useLimits = true;
             JointLimits limits = hinge.limits;
-            limits.min = 0;
+            limits.min = -openAngle; 
             limits.max = openAngle;
             hinge.limits = limits;
         }
         else
         {
             if (oldGrab != null && Application.isPlaying) Destroy(oldGrab);
-            
-            var simple = oldSimple;
-            if (simple == null) simple = gameObject.AddComponent<XRSimpleInteractable>();
+            var simple = oldSimple != null ? oldSimple : gameObject.AddComponent<XRSimpleInteractable>();
             xrInteractable = simple;
         }
 
         if (xrInteractable != null)
         {
             xrInteractable.selectEntered.AddListener(OnXRSelect);
+            xrInteractable.selectExited.AddListener(OnXRSelectExit);
             xrInteractable.hoverEntered.AddListener(OnXRHover);
         }
     }
 
     private void OnXRSelect(SelectEnterEventArgs args)
     {
+        isBeingGrabbed = true;
+        TriggerHaptic(args.interactorObject, hapticIntensity, hapticDuration);
         HandleVRInteraction();
+    }
+
+    private void OnXRSelectExit(SelectExitEventArgs args)
+    {
+        isBeingGrabbed = false;
     }
 
     private void OnXRHover(HoverEnterEventArgs args)
     {
-        // Only trigger by hand (direct interactor) touching, not ray
-        if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor)
-        {
-            HandleVRInteraction();
-        }
+        if (args.interactorObject is XRDirectInteractor direct) direct.SendHapticImpulse(0.05f, 0.05f);
+        if (args.interactorObject is XRDirectInteractor) HandleVRInteraction();
+    }
+
+    private void TriggerHaptic(IXRInteractor interactor, float intensity, float duration)
+    {
+        if (interactor is XRBaseInputInteractor input) input.SendHapticImpulse(intensity, duration);
     }
 
     private void HandleVRInteraction()
     {
         if (requiresCode && isLocked)
         {
-            if (audioSource != null && doorLockedSound != null)
-            {
-                audioSource.PlayOneShot(doorLockedSound);
-            }
+            if (audioSource != null && doorLockedSound != null) audioSource.PlayOneShot(doorLockedSound);
         }
         else if (!usePhysicsInVR)
         {
@@ -211,54 +219,59 @@ public class DoorController : MonoBehaviour
         }
     }
     
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            TryToggleDoor();
-        }
-        
-        CheckNumericInput();
-        
-        if (currentInputCode.Length > 0 && Time.time - lastInputTime > resetCodeTime)
-        {
-            ResetCode();
-        }
-        
-        if (isRotating && !usePhysicsInVR)
-        {
-            AnimateDoor();
+    void FixedUpdate() {
+        if (usePhysicsInVR && rb != null) {
+            if (!isLocked && rb.isKinematic) rb.isKinematic = false;
+            if (isLocked && !rb.isKinematic) rb.isKinematic = true;
         }
     }
 
-    // New method for VR interactions (e.g. from a keypad)
-    public void AddDigit(int digit)
+    void Update()
     {
-        AddDigitToCode(digit.ToString());
+        if (Input.GetKeyDown(KeyCode.F)) TryToggleDoor();
+        CheckNumericInput();
+        
+        if (currentInputCode.Length > 0 && Time.time - lastInputTime > resetCodeTime) ResetCode();
+        
+        if (isRotating && !usePhysicsInVR) AnimateDoor();
+
+        if (usePhysicsInVR && hinge != null && audioSource != null)
+        {
+            float currentAngle = hinge.angle;
+            float velocity = Mathf.Abs(currentAngle - lastHingeAngle) / Time.deltaTime;
+            
+            if (velocity > soundVelocityThreshold)
+            {
+                if (!audioSource.isPlaying && doorOpenSound != null)
+                {
+                    audioSource.clip = doorOpenSound;
+                    audioSource.Play();
+                }
+
+                if (isBeingGrabbed && xrInteractable != null && xrInteractable.interactorsSelecting.Count > 0)
+                {
+                    TriggerHaptic(xrInteractable.interactorsSelecting[0], 0.05f, 0.01f);
+                }
+            }
+            lastHingeAngle = currentAngle;
+        }
     }
-    
+
+    public void AddDigit(int digit) => AddDigitToCode(digit.ToString());
+
     void OnGUI()
     {
-        if (Application.isBatchMode) return; // Skip in headless/editor tools
-        if (!requiresCode || !isLocked)
-            return;
-            
+        if (Application.isBatchMode || !requiresCode || !isLocked) return;
         if (Camera.main != null)
         {
             Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-            RaycastHit hit;
-            
-            if (Physics.Raycast(ray, out hit, raycastDistance, raycastLayers))
+            if (Physics.Raycast(ray, out RaycastHit hit, raycastDistance, raycastLayers))
             {
                 if (hit.transform == transform || hit.transform.IsChildOf(transform) || 
                     (doorPivot != transform && (hit.transform == doorPivot || hit.transform.IsChildOf(doorPivot))))
                 {
-                    string displayCode = currentInputCode;
-                    while (displayCode.Length < maxCodeLength)
-                        displayCode += "_";
-                        
-                    GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 50), 
-                        "CODE: " + displayCode, codeStyle);
+                    string displayCode = currentInputCode.PadRight(maxCodeLength, '_');
+                    GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 50), "CODE: " + displayCode, codeStyle);
                 }
             }
         }
@@ -268,26 +281,17 @@ public class DoorController : MonoBehaviour
     {
         Camera mainCamera = Camera.main;
         if (mainCamera == null) return;
-        
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        RaycastHit hit;
-        
-        if (Physics.Raycast(ray, out hit, raycastDistance, raycastLayers))
+        if (Physics.Raycast(ray, out RaycastHit hit, raycastDistance, raycastLayers))
         {
             if (hit.transform == transform || hit.transform.IsChildOf(transform) || 
                 (doorPivot != transform && (hit.transform == doorPivot || hit.transform.IsChildOf(doorPivot))))
             {
                 if (requiresCode && isLocked)
                 {
-                    if (audioSource != null && doorLockedSound != null)
-                    {
-                        audioSource.PlayOneShot(doorLockedSound);
-                    }
+                    if (audioSource != null && doorLockedSound != null) audioSource.PlayOneShot(doorLockedSound);
                 }
-                else
-                {
-                    ToggleDoor();
-                }
+                else ToggleDoor();
             }
         }
     }
@@ -296,21 +300,10 @@ public class DoorController : MonoBehaviour
     {
         for (int i = 0; i <= 9; i++)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i))
-            {
-                AddDigitToCode(i.ToString());
-            }
+            if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i)) AddDigitToCode(i.ToString());
         }
-        
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            ValidateCode();
-        }
-        
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace))
-        {
-            ResetCode();
-        }
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) ValidateCode();
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace)) ResetCode();
     }
     
     void AddDigitToCode(string digit)
@@ -319,11 +312,7 @@ public class DoorController : MonoBehaviour
         {
             currentInputCode += digit;
             lastInputTime = Time.time;
-            
-            if (currentInputCode.Length == maxCodeLength)
-            {
-                ValidateCode();
-            }
+            if (currentInputCode.Length == maxCodeLength) ValidateCode();
         }
     }
     
@@ -333,46 +322,25 @@ public class DoorController : MonoBehaviour
         {
             isLocked = false;
             if (rb != null) rb.isKinematic = false;
-
-            if (audioSource != null && doorUnlockSound != null)
-            {
-                audioSource.PlayOneShot(doorUnlockSound);
-            }
-            
+            if (audioSource != null && doorUnlockSound != null) audioSource.PlayOneShot(doorUnlockSound);
             if (estObjectif && !objectifComplete && systemeObjectifs != null)
             {
-                string idObjectif = "trouver_code_" + doorId;
-                systemeObjectifs.CompleterObjectif(idObjectif);
+                systemeObjectifs.CompleterObjectif("trouver_code_" + doorId);
                 objectifComplete = true;
             }
-            
             if (!usePhysicsInVR) ToggleDoor();
         }
-        else
-        {
-            if (audioSource != null && codeErrorSound != null)
-            {
-                audioSource.PlayOneShot(codeErrorSound);
-            }
-        }
+        else if (audioSource != null && codeErrorSound != null) audioSource.PlayOneShot(codeErrorSound);
         currentInputCode = "";
     }
     
-    void ResetCode()
-    {
-        currentInputCode = "";
-    }
-    
-    public void SetDoorCode(string newCode)
-    {
-        correctCode = newCode;
-    }
+    void ResetCode() => currentInputCode = "";
+    public void SetDoorCode(string newCode) => correctCode = newCode;
     
     void ToggleDoor()
     {
         isOpen = !isOpen;
         isRotating = true;
-        
         if (audioSource != null)
         {
             if (isOpen && doorOpenSound != null) audioSource.PlayOneShot(doorOpenSound);
@@ -384,7 +352,6 @@ public class DoorController : MonoBehaviour
     {
         Quaternion targetRot = isOpen ? targetRotation : initialRotation;
         doorPivot.rotation = Quaternion.Slerp(doorPivot.rotation, targetRot, Time.deltaTime * rotationSpeed);
-        
         if (Quaternion.Angle(doorPivot.rotation, targetRot) < 0.1f)
         {
             doorPivot.rotation = targetRot;
