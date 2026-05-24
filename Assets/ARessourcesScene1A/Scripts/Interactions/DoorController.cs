@@ -137,6 +137,13 @@ public class DoorController : MonoBehaviour
             rb.mass = 1f;
             rb.angularDamping = 5f;
 
+            // Ensure MeshColliders are convex for physics
+            var meshCollider = GetComponent<MeshCollider>();
+            if (meshCollider != null)
+            {
+                meshCollider.convex = true;
+            }
+
             hinge = GetComponent<HingeJoint>();
             if (hinge == null) hinge = gameObject.AddComponent<HingeJoint>();
             
