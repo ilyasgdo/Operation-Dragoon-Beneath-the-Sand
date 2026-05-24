@@ -46,7 +46,7 @@ public class DoorController : MonoBehaviour
     public bool usePhysicsInVR = true;
     private Rigidbody rb;
     private HingeJoint hinge;
-    private XRSimpleInteractable xrInteractable;
+    private XRBaseInteractable xrInteractable;
 
     private bool isOpen = false;
     private bool isRotating = false;
@@ -80,30 +80,7 @@ public class DoorController : MonoBehaviour
             }
         }
         
-        // Setup VR Interaction
-        xrInteractable = GetComponent<XRSimpleInteractable>();
-        if (xrInteractable == null) xrInteractable = gameObject.AddComponent<XRSimpleInteractable>();
-        xrInteractable.selectEntered.AddListener(OnXRSelect);
-        xrInteractable.hoverEntered.AddListener(OnXRHover);
-
-        if (usePhysicsInVR)
-        {
-            rb = GetComponent<Rigidbody>();
-            if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
-            rb.isKinematic = isLocked;
-            rb.useGravity = false;
-            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-
-            hinge = GetComponent<HingeJoint>();
-            if (hinge == null) hinge = gameObject.AddComponent<HingeJoint>();
-            hinge.anchor = transform.InverseTransformPoint(doorPivot.position);
-            hinge.axis = rotationAxis;
-            hinge.useLimits = true;
-            JointLimits limits = hinge.limits;
-            limits.min = 0;
-            limits.max = openAngle;
-            hinge.limits = limits;
-        }
+        SetupVRInteraction();
 
         // Initialiser les styles pour l'interface utilisateur (Desktop only)
         codeStyle = new GUIStyle();
@@ -122,6 +99,71 @@ public class DoorController : MonoBehaviour
         {
             string idObjectif = "trouver_code_" + doorId;
             systemeObjectifs.AjouterObjectif(idObjectif, "Trouver le code de la porte: " + doorId);
+        }
+    }
+
+    void SetupVRInteraction()
+    {
+        // Clean up old interactables to avoid conflicts
+        var oldSimple = GetComponent<XRSimpleInteractable>();
+        var oldGrab = GetComponent<XRGrabInteractable>();
+
+        if (usePhysicsInVR)
+        {
+            if (oldSimple != null && Application.isPlaying) Destroy(oldSimple);
+            
+            var grab = oldGrab;
+            if (grab == null) grab = gameObject.AddComponent<XRGrabInteractable>();
+            
+            grab.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+            grab.trackPosition = true;
+            grab.trackRotation = true;
+            grab.throwOnDetach = false;
+            xrInteractable = grab;
+
+            rb = GetComponent<Rigidbody>();
+            if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+            rb.isKinematic = isLocked;
+            rb.useGravity = false;
+            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            rb.mass = 1f;
+            rb.angularDamping = 5f;
+
+            hinge = GetComponent<HingeJoint>();
+            if (hinge == null) hinge = gameObject.AddComponent<HingeJoint>();
+            
+            Vector3 anchorPos = transform.InverseTransformPoint(doorPivot.position);
+            if (anchorPos.magnitude < 0.1f)
+            {
+                var filter = GetComponentInChildren<MeshFilter>();
+                if (filter != null)
+                {
+                    var bounds = filter.sharedMesh.bounds;
+                    anchorPos = new Vector3(bounds.min.x, 0, 0);
+                }
+            }
+
+            hinge.anchor = anchorPos;
+            hinge.axis = Vector3.up; 
+            hinge.useLimits = true;
+            JointLimits limits = hinge.limits;
+            limits.min = 0;
+            limits.max = openAngle;
+            hinge.limits = limits;
+        }
+        else
+        {
+            if (oldGrab != null && Application.isPlaying) Destroy(oldGrab);
+            
+            var simple = oldSimple;
+            if (simple == null) simple = gameObject.AddComponent<XRSimpleInteractable>();
+            xrInteractable = simple;
+        }
+
+        if (xrInteractable != null)
+        {
+            xrInteractable.selectEntered.AddListener(OnXRSelect);
+            xrInteractable.hoverEntered.AddListener(OnXRHover);
         }
     }
 
