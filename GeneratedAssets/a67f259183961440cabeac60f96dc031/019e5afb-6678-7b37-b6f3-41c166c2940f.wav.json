@@ -1,0 +1,15 @@
+{
+    "asset": "a67f259183961440cabeac60f96dc031",
+    "fileName": "019e5afb-6678-7b37-b6f3-41c166c2940f.wav",
+    "prompt": "creepy high pitched ghostly scream followed by a paranoid whisper 'They are coming for you'",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 3.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}
