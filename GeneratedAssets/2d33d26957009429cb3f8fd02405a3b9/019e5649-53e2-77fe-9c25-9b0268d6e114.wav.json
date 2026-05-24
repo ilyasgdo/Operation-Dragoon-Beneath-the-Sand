@@ -1,0 +1,15 @@
+{
+    "asset": "2d33d26957009429cb3f8fd02405a3b9",
+    "fileName": "019e5649-53e2-77fe-9c25-9b0268d6e114.wav",
+    "prompt": "Scared whispered voice: They are coming... run!",
+    "negativePrompt": "",
+    "model": "elevenlabs-multilingual-v2",
+    "modelName": "ElevenLabs Multilingual V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 2.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": "Bella"
+}

@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class DoorController : MonoBehaviour
 {
@@ -15,53 +18,54 @@ public class DoorController : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip doorOpenSound;
     public AudioClip doorCloseSound;
-    public AudioClip doorLockedSound; // Son quand la porte est verrouillée
-    public AudioClip doorUnlockSound; // Son quand la porte est déverrouillée
-    public AudioClip codeErrorSound; // Son quand le code est incorrect
+    public AudioClip doorLockedSound;
+    public AudioClip doorUnlockSound;
+    public AudioClip codeErrorSound;
     [Range(0f, 1f)]
     public float volume = 1.0f;
     
     [Header("Système de Verrouillage")]
-    public bool requiresCode = true; // Si la porte nécessite un code pour s'ouvrir
-    public string correctCode = "19391945"; // Le code correct par défaut
-    public bool isLocked = true; // Si la porte est verrouillée
-    private string currentInputCode = ""; // Le code actuellement saisi
-    public int maxCodeLength = 8; // Longueur maximale du code
-    public float resetCodeTime = 5f; // Temps avant réinitialisation du code saisi
-    private float lastInputTime; // Dernière fois qu'un chiffre a été saisi
+    public bool requiresCode = true;
+    public string correctCode = "19391945";
+    public bool isLocked = true;
+    private string currentInputCode = "";
+    public int maxCodeLength = 8;
+    public float resetCodeTime = 5f;
+    private float lastInputTime;
     
     [Header("Système d'Objectifs")]
-    public string doorId = "porte_principale"; // Identifiant unique de la porte
-    public SystemeObjectifs systemeObjectifs; // Référence au système d'objectifs
-    public bool estObjectif = false; // Si trouver le code de cette porte est un objectif
-    private bool objectifComplete = false; // Si l'objectif a été complété
+    public string doorId = "porte_principale";
+    public SystemeObjectifs systemeObjectifs;
+    public bool estObjectif = false;
+    private bool objectifComplete = false;
     
-    [Header("Débogage")]
-    public bool showDebugRay = true;
-    public LayerMask raycastLayers = -1; // Tous les layers par défaut
+    [Header("VR Physics & Feedback")]
+    public bool usePhysicsInVR = true;
+    public float hapticIntensity = 0.2f;
+    public float hapticDuration = 0.1f;
+    public float soundVelocityThreshold = 0.1f;
     
+    private Rigidbody rb;
+    private HingeJoint hinge;
+    private XRBaseInteractable xrInteractable;
+    private float lastHingeAngle;
+    private bool isBeingGrabbed = false;
+
     private bool isOpen = false;
     private bool isRotating = false;
     private Quaternion initialRotation;
     private Quaternion targetRotation;
     
-    // Style pour l'interface utilisateur
     private GUIStyle codeStyle;
     private GUIStyle statusStyle;
-    
+    public LayerMask raycastLayers = -1;
+
     void Start()
     {
-        // Si aucun pivot n'est spécifié, utiliser cet objet
-        if (doorPivot == null)
-        {
-            doorPivot = transform;
-        }
+        if (doorPivot == null) doorPivot = transform;
         
         initialRotation = doorPivot.rotation;
         targetRotation = Quaternion.Euler(rotationAxis * openAngle) * initialRotation;
-        
-        Debug.Log("Porte initialisée. Rotation initiale: " + initialRotation.eulerAngles);
-        Debug.Log("Rotation cible: " + targetRotation.eulerAngles);
         
         if (audioSource == null)
         {
@@ -75,14 +79,10 @@ public class DoorController : MonoBehaviour
             }
         }
         
-        // Vérifier si la porte a un collider
-        Collider doorCollider = GetComponent<Collider>();
-        if (doorCollider == null)
-        {
-            Debug.LogWarning("Attention: La porte n'a pas de collider! Ajoutez un Box Collider.");
-        }
+        SetupVRInteraction();
+        if (hinge != null) lastHingeAngle = hinge.angle;
         
-        // Initialiser les styles pour l'interface utilisateur
+        // Desktop GUI Styles
         codeStyle = new GUIStyle();
         codeStyle.fontSize = 24;
         codeStyle.normal.textColor = Color.white;
@@ -93,79 +93,185 @@ public class DoorController : MonoBehaviour
         statusStyle.normal.textColor = Color.yellow;
         statusStyle.alignment = TextAnchor.MiddleCenter;
         
-        // Initialiser le temps de dernière saisie
         lastInputTime = Time.time;
         
-        // Créer l'objectif pour cette porte si nécessaire
         if (estObjectif && systemeObjectifs != null)
         {
-            string idObjectif = "trouver_code_" + doorId;
-            systemeObjectifs.AjouterObjectif(idObjectif, "Trouver le code de la porte: " + doorId);
+            systemeObjectifs.AjouterObjectif("trouver_code_" + doorId, "Trouver le code de la porte: " + doorId);
+        }
+    }
+
+    void SetupVRInteraction()
+    {
+        var oldSimple = GetComponent<XRSimpleInteractable>();
+        var oldGrab = GetComponent<XRGrabInteractable>();
+
+        if (usePhysicsInVR)
+        {
+            if (oldSimple != null && Application.isPlaying) Destroy(oldSimple);
+            
+            var grab = oldGrab;
+            if (grab == null) grab = gameObject.AddComponent<XRGrabInteractable>();
+            
+            grab.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+            grab.trackPosition = true;
+            grab.trackRotation = true;
+            grab.throwOnDetach = false;
+            xrInteractable = grab;
+
+            rb = GetComponent<Rigidbody>();
+            if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+            
+            rb.isKinematic = isLocked;
+            rb.useGravity = false;
+            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            rb.mass = 10f; 
+            rb.angularDamping = 2f;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+            var meshCollider = GetComponent<MeshCollider>();
+            if (meshCollider != null) meshCollider.convex = true;
+
+            hinge = GetComponent<HingeJoint>();
+            if (hinge == null) hinge = gameObject.AddComponent<HingeJoint>();
+            
+            // Smart Anchor detection
+            Vector3 anchorPos = Vector3.zero;
+            if (doorPivot != null && doorPivot != transform)
+            {
+                anchorPos = transform.InverseTransformPoint(doorPivot.position);
+            }
+            else
+            {
+                var meshFilter = GetComponentInChildren<MeshFilter>();
+                if (meshFilter != null)
+                {
+                    var bounds = meshFilter.sharedMesh.bounds;
+                    float maxDim = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+                    if (Mathf.Abs(bounds.size.y - maxDim) < 0.01f) {
+                        hinge.axis = Vector3.up;
+                        anchorPos = new Vector3(bounds.min.x, 0, 0);
+                    } else if (Mathf.Abs(bounds.size.z - maxDim) < 0.01f) {
+                        hinge.axis = Vector3.forward;
+                        anchorPos = new Vector3(bounds.min.x, 0, 0);
+                    } else {
+                        hinge.axis = Vector3.right;
+                        anchorPos = new Vector3(0, 0, bounds.min.z);
+                    }
+                }
+            }
+
+            hinge.anchor = anchorPos;
+            if (hinge.axis == Vector3.zero) hinge.axis = rotationAxis; 
+            hinge.useLimits = true;
+            JointLimits limits = hinge.limits;
+            limits.min = -openAngle; 
+            limits.max = openAngle;
+            hinge.limits = limits;
+        }
+        else
+        {
+            if (oldGrab != null && Application.isPlaying) Destroy(oldGrab);
+            var simple = oldSimple != null ? oldSimple : gameObject.AddComponent<XRSimpleInteractable>();
+            xrInteractable = simple;
+        }
+
+        if (xrInteractable != null)
+        {
+            xrInteractable.selectEntered.AddListener(OnXRSelect);
+            xrInteractable.selectExited.AddListener(OnXRSelectExit);
+            xrInteractable.hoverEntered.AddListener(OnXRHover);
+        }
+    }
+
+    private void OnXRSelect(SelectEnterEventArgs args)
+    {
+        isBeingGrabbed = true;
+        TriggerHaptic(args.interactorObject, hapticIntensity, hapticDuration);
+        HandleVRInteraction();
+    }
+
+    private void OnXRSelectExit(SelectExitEventArgs args)
+    {
+        isBeingGrabbed = false;
+    }
+
+    private void OnXRHover(HoverEnterEventArgs args)
+    {
+        if (args.interactorObject is XRDirectInteractor direct) direct.SendHapticImpulse(0.05f, 0.05f);
+        if (args.interactorObject is XRDirectInteractor) HandleVRInteraction();
+    }
+
+    private void TriggerHaptic(IXRInteractor interactor, float intensity, float duration)
+    {
+        if (interactor is XRBaseInputInteractor input) input.SendHapticImpulse(intensity, duration);
+    }
+
+    private void HandleVRInteraction()
+    {
+        if (requiresCode && isLocked)
+        {
+            if (audioSource != null && doorLockedSound != null) audioSource.PlayOneShot(doorLockedSound);
+        }
+        else if (!usePhysicsInVR)
+        {
+            ToggleDoor();
         }
     }
     
+    void FixedUpdate() {
+        if (usePhysicsInVR && rb != null) {
+            if (!isLocked && rb.isKinematic) rb.isKinematic = false;
+            if (isLocked && !rb.isKinematic) rb.isKinematic = true;
+        }
+    }
+
     void Update()
     {
-        // Vérifier l'interaction avec la touche F
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            Debug.Log("Touche F appuyée");
-            TryToggleDoor();
-        }
-        
-        // Vérifier les entrées numériques pour le code
+        if (Input.GetKeyDown(KeyCode.F)) TryToggleDoor();
         CheckNumericInput();
         
-        // Vérifier si le temps de réinitialisation du code est écoulé
-        if (currentInputCode.Length > 0 && Time.time - lastInputTime > resetCodeTime)
-        {
-            ResetCode();
-        }
+        if (currentInputCode.Length > 0 && Time.time - lastInputTime > resetCodeTime) ResetCode();
         
-        // Animer la rotation de la porte
-        if (isRotating)
+        if (isRotating && !usePhysicsInVR) AnimateDoor();
+
+        if (usePhysicsInVR && hinge != null && audioSource != null)
         {
-            AnimateDoor();
-        }
-        
-        // Afficher le rayon de débogage
-        if (showDebugRay && Camera.main != null)
-        {
-            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-            Debug.DrawRay(ray.origin, ray.direction * raycastDistance, Color.red);
+            float currentAngle = hinge.angle;
+            float velocity = Mathf.Abs(currentAngle - lastHingeAngle) / Time.deltaTime;
+            
+            if (velocity > soundVelocityThreshold)
+            {
+                if (!audioSource.isPlaying && doorOpenSound != null)
+                {
+                    audioSource.clip = doorOpenSound;
+                    audioSource.Play();
+                }
+
+                if (isBeingGrabbed && xrInteractable != null && xrInteractable.interactorsSelecting.Count > 0)
+                {
+                    TriggerHaptic(xrInteractable.interactorsSelecting[0], 0.05f, 0.01f);
+                }
+            }
+            lastHingeAngle = currentAngle;
         }
     }
-    
-    // Afficher l'interface utilisateur pour le code
+
+    public void AddDigit(int digit) => AddDigitToCode(digit.ToString());
+
     void OnGUI()
     {
-        // Ne rien afficher si la porte n'est pas verrouillée ou ne nécessite pas de code
-        if (!requiresCode || !isLocked)
-            return;
-            
-        // Vérifier si le joueur est assez proche de la porte
+        if (Application.isBatchMode || !requiresCode || !isLocked) return;
         if (Camera.main != null)
         {
             Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-            RaycastHit hit;
-            
-            if (Physics.Raycast(ray, out hit, raycastDistance, raycastLayers))
+            if (Physics.Raycast(ray, out RaycastHit hit, raycastDistance, raycastLayers))
             {
-                // Vérifier si c'est cette porte ou un de ses enfants
                 if (hit.transform == transform || hit.transform.IsChildOf(transform) || 
                     (doorPivot != transform && (hit.transform == doorPivot || hit.transform.IsChildOf(doorPivot))))
                 {
-                    // Afficher le code en cours de saisie
-                    string displayCode = currentInputCode;
-                    while (displayCode.Length < maxCodeLength)
-                        displayCode += "_";
-                        
-                    GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 50), 
-                        "CODE: " + displayCode, codeStyle);
-                        
-                    // Afficher les instructions
-                    GUI.Label(new Rect(Screen.width / 2 - 150, Screen.height / 2, 300, 30), 
-                        "Entrez le code avec les touches numériques", statusStyle);
+                    string displayCode = currentInputCode.PadRight(maxCodeLength, '_');
+                    GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 50), "CODE: " + displayCode, codeStyle);
                 }
             }
         }
@@ -173,193 +279,83 @@ public class DoorController : MonoBehaviour
     
     void TryToggleDoor()
     {
-        // Obtenir la caméra principale
         Camera mainCamera = Camera.main;
-        if (mainCamera == null)
-        {
-            Debug.LogError("Pas de caméra principale trouvée!");
-            return;
-        }
-        
-        // Créer un rayon depuis le centre de la caméra
+        if (mainCamera == null) return;
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        RaycastHit hit;
-        
-        // Vérifier si le rayon touche quelque chose
-        if (Physics.Raycast(ray, out hit, raycastDistance, raycastLayers))
+        if (Physics.Raycast(ray, out RaycastHit hit, raycastDistance, raycastLayers))
         {
-            Debug.Log("Rayon a touché: " + hit.transform.name + " à distance: " + hit.distance);
-            
-            // Vérifier si c'est cette porte ou un de ses enfants
             if (hit.transform == transform || hit.transform.IsChildOf(transform) || 
                 (doorPivot != transform && (hit.transform == doorPivot || hit.transform.IsChildOf(doorPivot))))
             {
-                Debug.Log("Porte détectée!");
-                
-                // Vérifier si la porte nécessite un code et si elle est verrouillée
                 if (requiresCode && isLocked)
                 {
-                    Debug.Log("La porte est verrouillée. Code actuel: " + currentInputCode);
-                    // Jouer le son de porte verrouillée
-                    if (audioSource != null && doorLockedSound != null)
-                    {
-                        audioSource.clip = doorLockedSound;
-                        audioSource.Play();
-                    }
+                    if (audioSource != null && doorLockedSound != null) audioSource.PlayOneShot(doorLockedSound);
                 }
-                else
-                {
-                    // Si la porte n'est pas verrouillée ou ne nécessite pas de code, l'ouvrir
-                    ToggleDoor();
-                }
+                else ToggleDoor();
             }
-        }
-        else
-        {
-            Debug.Log("Rayon n'a rien touché dans la distance " + raycastDistance);
         }
     }
     
-    // Vérifie les entrées numériques pour le code
     void CheckNumericInput()
     {
-        // Vérifier les touches numériques (0-9)
         for (int i = 0; i <= 9; i++)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i))
-            {
-                AddDigitToCode(i.ToString());
-            }
+            if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i)) AddDigitToCode(i.ToString());
         }
-        
-        // Vérifier la touche Entrée pour valider le code
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            ValidateCode();
-        }
-        
-        // Vérifier la touche Échap ou Retour pour effacer le code
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace))
-        {
-            ResetCode();
-        }
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) ValidateCode();
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace)) ResetCode();
     }
     
-    // Ajoute un chiffre au code actuel
     void AddDigitToCode(string digit)
     {
         if (currentInputCode.Length < maxCodeLength)
         {
             currentInputCode += digit;
             lastInputTime = Time.time;
-            Debug.Log("Code actuel: " + currentInputCode);
-            
-            // Si le code a atteint la longueur maximale, le valider automatiquement
-            if (currentInputCode.Length == maxCodeLength)
-            {
-                ValidateCode();
-            }
+            if (currentInputCode.Length == maxCodeLength) ValidateCode();
         }
     }
     
-    // Valide le code entré
     void ValidateCode()
     {
-        Debug.Log("Validation du code: " + currentInputCode + " vs " + correctCode);
-        
-        // Vérifier si le code est correct
         if (currentInputCode == correctCode)
         {
-            Debug.Log("Code correct!");
-            
-            // Déverrouiller la porte
             isLocked = false;
-            
-            // Jouer le son de déverrouillage
-            if (audioSource != null && doorUnlockSound != null)
-            {
-                audioSource.clip = doorUnlockSound;
-                audioSource.Play();
-            }
-            
-            // Compléter l'objectif si c'est un objectif et que ce n'est pas déjà complété
+            if (rb != null) rb.isKinematic = false;
+            if (audioSource != null && doorUnlockSound != null) audioSource.PlayOneShot(doorUnlockSound);
             if (estObjectif && !objectifComplete && systemeObjectifs != null)
             {
-                string idObjectif = "trouver_code_" + doorId;
-                systemeObjectifs.CompleterObjectif(idObjectif);
+                systemeObjectifs.CompleterObjectif("trouver_code_" + doorId);
                 objectifComplete = true;
             }
-            
-            // Ouvrir la porte automatiquement
-            ToggleDoor();
+            if (!usePhysicsInVR) ToggleDoor();
         }
-        else
-        {
-            Debug.Log("Code incorrect!");
-            
-            // Jouer le son d'erreur
-            if (audioSource != null && codeErrorSound != null)
-            {
-                audioSource.clip = codeErrorSound;
-                audioSource.Play();
-            }
-        }
-        
-        // Réinitialiser le code après validation
+        else if (audioSource != null && codeErrorSound != null) audioSource.PlayOneShot(codeErrorSound);
         currentInputCode = "";
     }
     
-    // Réinitialise le code actuel
-    void ResetCode()
-    {
-        currentInputCode = "";
-        Debug.Log("Code réinitialisé.");
-    }
-    
-    // Définit un nouveau code pour la porte
-    public void SetDoorCode(string newCode)
-    {
-        correctCode = newCode;
-        Debug.Log("Nouveau code défini: " + newCode);
-    }
+    void ResetCode() => currentInputCode = "";
+    public void SetDoorCode(string newCode) => correctCode = newCode;
     
     void ToggleDoor()
     {
         isOpen = !isOpen;
         isRotating = true;
-        
-        Debug.Log("Porte en train de " + (isOpen ? "s'ouvrir" : "se fermer"));
-        
-        // Jouer le son approprié
         if (audioSource != null)
         {
-            if (isOpen && doorOpenSound != null)
-            {
-                audioSource.clip = doorOpenSound;
-                audioSource.Play();
-            }
-            else if (!isOpen && doorCloseSound != null)
-            {
-                audioSource.clip = doorCloseSound;
-                audioSource.Play();
-            }
+            if (isOpen && doorOpenSound != null) audioSource.PlayOneShot(doorOpenSound);
+            else if (!isOpen && doorCloseSound != null) audioSource.PlayOneShot(doorCloseSound);
         }
     }
     
     void AnimateDoor()
     {
-        // Déterminer la rotation cible
         Quaternion targetRot = isOpen ? targetRotation : initialRotation;
-        
-        // Effectuer la rotation progressive
         doorPivot.rotation = Quaternion.Slerp(doorPivot.rotation, targetRot, Time.deltaTime * rotationSpeed);
-        
-        // Vérifier si la rotation est terminée
         if (Quaternion.Angle(doorPivot.rotation, targetRot) < 0.1f)
         {
             doorPivot.rotation = targetRot;
             isRotating = false;
-            Debug.Log("Animation de porte terminée");
         }
     }
 }

@@ -1,0 +1,15 @@
+{
+    "asset": "4fdafa60b3bd040d5960fdfcc675ef1a",
+    "fileName": "019e5649-5aa7-761c-b5e3-a331f0ef3c10.wav",
+    "prompt": "Whispered spooky voice: Who are you? You shouldn't be here.",
+    "negativePrompt": "",
+    "model": "elevenlabs-multilingual-v2",
+    "modelName": "ElevenLabs Multilingual V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 3.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": "Adam"
+}

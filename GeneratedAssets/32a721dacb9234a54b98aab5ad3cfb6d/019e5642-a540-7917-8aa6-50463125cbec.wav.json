@@ -1,0 +1,15 @@
+{
+    "asset": "32a721dacb9234a54b98aab5ad3cfb6d",
+    "fileName": "019e5642-a540-7917-8aa6-50463125cbec.wav",
+    "prompt": "WWII military bunker ambiance, distant wind, subtle radio static, quiet room tone, immersive 3D background loop",
+    "negativePrompt": "",
+    "model": "elevenlabs-sound-effects-v2",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false,
+    "voice": ""
+}

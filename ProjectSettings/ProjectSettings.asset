@@ -82,7 +82,7 @@ PlayerSettings:
   androidApplicationEntry: 2
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
-  runInBackground: 0
+  runInBackground: 1
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
   Force IOS Speakers When Recording: 0
@@ -143,6 +143,8 @@ PlayerSettings:
   bundleVersion: 0.1.0
   preloadedAssets:
   - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - {fileID: 431026506871790858, guid: 7a293c3621e0046ef8727fb3ebc6aa4b, type: 2}
+  - {fileID: -5379893960239913041, guid: dd37a2d1a9ae84b418d741ecc2c33882, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -174,7 +176,7 @@ PlayerSettings:
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 23
+  AndroidMinSdkVersion: 32
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   aotOptions: 
@@ -825,7 +827,7 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Android: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
+    Android: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2;USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS
     EmbeddedLinux: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
     GameCoreXboxOne: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
     Nintendo Switch: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
@@ -833,9 +835,10 @@ PlayerSettings:
     PS5: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
     QNX: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
     ReservedCFE: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
-    Standalone: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
+    Standalone: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2;USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS
     VisionOS: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
     WebGL: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
+    Windows Store Apps: USE_INPUT_SYSTEM_POSE_CONTROL;USE_STICK_CONTROL_THUMBSTICKS
     XboxOne: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
     tvOS: TITAN_EDITOR_MODE;UNITY_POST_PROCESSING_STACK_V2
   additionalCompilerArguments: {}
@@ -935,7 +938,7 @@ PlayerSettings:
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
   captureStartupLogs: {}
-  activeInputHandler: 2
+  activeInputHandler: 1
   windowsGamepadBackendHint: 0
   cloudProjectId: 6d66288b-57ea-47c3-b8a2-90f79e9a3a7f
   framebufferDepthMemorylessMode: 0

@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class RadioInteractive : MonoBehaviour
 {
@@ -57,6 +59,10 @@ public class RadioInteractive : MonoBehaviour
     [Range(0.1f, 5f)]
     public float sensibiliteMolette = 1.0f;
     
+    [Header("VR")]
+    public XRSimpleInteractable xrInteractable;
+    public InputActionProperty vrRotateAction;
+
     // Variables privées
     private bool estJoueurProche = false;
     private bool estEnInteraction = false;
@@ -98,6 +104,42 @@ public class RadioInteractive : MonoBehaviour
         CreerSourcesAudio();
     }
     
+    void Start()
+    {
+        // Vérifier si les sources audio sont correctement configurées
+        if (audioSourceGresillement != null && audioSourceGresillement.clip == null && clipGresillement != null)
+        {
+            audioSourceGresillement.clip = clipGresillement;
+            audioSourceGresillement.Play();
+        }
+        
+        if (audioSourceDiscours != null && audioSourceDiscours.clip == null && clipDiscours != null)
+        {
+            audioSourceDiscours.clip = clipDiscours;
+        }
+
+        if (xrInteractable == null) xrInteractable = GetComponent<XRSimpleInteractable>();
+        if (xrInteractable != null)
+        {
+            xrInteractable.selectEntered.AddListener(OnXRSelect);
+            xrInteractable.hoverEntered.AddListener(OnXRHover);
+        }
+    }
+
+    private void OnXRHover(HoverEnterEventArgs args)
+    {
+        if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor && !estEnInteraction)
+        {
+            CommencerInteraction();
+        }
+    }
+
+    private void OnXRSelect(SelectEnterEventArgs args)
+    {
+        if (estEnInteraction) TerminerInteraction();
+        else CommencerInteraction();
+    }
+    
     // Créer les sources audio automatiquement
     void CreerSourcesAudio()
     {
@@ -128,52 +170,8 @@ public class RadioInteractive : MonoBehaviour
             audioSourceDiscours.clip = clipDiscours;
         }
     }
-    
-    void Start()
-    {
-        // Vérifier si les sources audio sont correctement configurées
-        if (audioSourceGresillement != null && audioSourceGresillement.clip == null && clipGresillement != null)
-        {
-            audioSourceGresillement.clip = clipGresillement;
-            audioSourceGresillement.Play();
-        }
-        
-        if (audioSourceDiscours != null && audioSourceDiscours.clip == null && clipDiscours != null)
-        {
-            audioSourceDiscours.clip = clipDiscours;
-        }
-    }
-    
-    // Update est appelé une fois par frame
-    void Update()
-    {
-        // Vérifier si le joueur est à proximité de la radio
-        VerifierProximiteJoueur();
-        
-        // Vérifier l'interaction avec la radio
-        if (estJoueurProche && !estEnInteraction && Keyboard.current.fKey.wasPressedThisFrame)
-        {
-            CommencerInteraction();
-        }
-        
-        // Gérer l'ajustement de la fréquence
-        if (estEnInteraction)
-        {
-            AjusterFrequence();
-            
-            // Vérifier si la fréquence est correcte
-            VerifierFrequence();
-            
-            // Ajuster le volume du grésillement en fonction de la proximité avec la fréquence correcte
-            AjusterGresillement();
-            
-            // Permettre au joueur de quitter l'interaction en appuyant sur Échap
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
-            {
-                TerminerInteraction();
-            }
-        }
-    }
+
+
     
     // Vérifier si le joueur est à proximité de la radio
     void VerifierProximiteJoueur()
@@ -197,7 +195,7 @@ public class RadioInteractive : MonoBehaviour
     }
     
     // Commencer l'interaction avec la radio
-    void CommencerInteraction()
+    public void CommencerInteraction()
     {
         estEnInteraction = true;
         
@@ -208,18 +206,26 @@ public class RadioInteractive : MonoBehaviour
         }
     }
     
-    // Ajuster la fréquence avec la molette de la souris
+    // Ajuster la fréquence avec la molette de la souris ou VR joystick
     void AjusterFrequence()
     {
         float ajustement = 0;
         
-        // Utiliser la molette de la souris pour ajuster la fréquence
-        float scrollDelta = Mouse.current.scroll.y.ReadValue();
-        if (scrollDelta != 0)
+        // VR Input
+        if (vrRotateAction.action != null)
         {
-            // Convertir le défilement de la molette en ajustement de fréquence
-            // Le multiplier par sensibiliteMolette pour permettre l'ajustement de la sensibilité
-            ajustement = scrollDelta * 0.01f * sensibiliteMolette;
+            Vector2 joystickValue = vrRotateAction.action.ReadValue<Vector2>();
+            ajustement = joystickValue.x * 0.1f * sensibiliteMolette;
+        }
+
+        // Desktop Input
+        if (Mouse.current != null)
+        {
+            float scrollDelta = Mouse.current.scroll.y.ReadValue();
+            if (scrollDelta != 0)
+            {
+                ajustement += scrollDelta * 0.01f * sensibiliteMolette;
+            }
         }
         
         // Appliquer l'ajustement
@@ -328,7 +334,7 @@ public class RadioInteractive : MonoBehaviour
     }
     
     // Terminer l'interaction avec la radio
-    void TerminerInteraction()
+    public void TerminerInteraction()
     {
         estEnInteraction = false;
         
@@ -351,6 +357,7 @@ public class RadioInteractive : MonoBehaviour
     // Afficher l'interface utilisateur
     void OnGUI()
     {
+        if (Application.isBatchMode) return;
         // Afficher l'instruction d'interaction si le joueur est proche mais n'interagit pas encore
         if (estJoueurProche && !estEnInteraction)
         {
