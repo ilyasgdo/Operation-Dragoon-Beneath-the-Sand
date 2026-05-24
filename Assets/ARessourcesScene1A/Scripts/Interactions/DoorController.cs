@@ -102,6 +102,14 @@ public class DoorController : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        if (Application.isPlaying)
+        {
+            Debug.Log("Door " + gameObject.name + " is being DESTROYED!");
+        }
+    }
+
     void SetupVRInteraction()
     {
         // Clean up old interactables to avoid conflicts

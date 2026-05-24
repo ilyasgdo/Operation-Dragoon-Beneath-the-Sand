@@ -102,6 +102,21 @@ public class RadioInteractive : MonoBehaviour
         
         // Créer les sources audio automatiquement
         CreerSourcesAudio();
+    }
+    
+    void Start()
+    {
+        // Vérifier si les sources audio sont correctement configurées
+        if (audioSourceGresillement != null && audioSourceGresillement.clip == null && clipGresillement != null)
+        {
+            audioSourceGresillement.clip = clipGresillement;
+            audioSourceGresillement.Play();
+        }
+        
+        if (audioSourceDiscours != null && audioSourceDiscours.clip == null && clipDiscours != null)
+        {
+            audioSourceDiscours.clip = clipDiscours;
+        }
 
         if (xrInteractable == null) xrInteractable = GetComponent<XRSimpleInteractable>();
         if (xrInteractable != null)
@@ -109,17 +124,17 @@ public class RadioInteractive : MonoBehaviour
             xrInteractable.selectEntered.AddListener(OnXRSelect);
             xrInteractable.hoverEntered.AddListener(OnXRHover);
         }
-        }
+    }
 
-        private void OnXRHover(HoverEnterEventArgs args)
-        {
+    private void OnXRHover(HoverEnterEventArgs args)
+    {
         if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor && !estEnInteraction)
         {
             CommencerInteraction();
         }
-        }
+    }
 
-        private void OnXRSelect(SelectEnterEventArgs args)
+    private void OnXRSelect(SelectEnterEventArgs args)
     {
         if (estEnInteraction) TerminerInteraction();
         else CommencerInteraction();
@@ -155,52 +170,8 @@ public class RadioInteractive : MonoBehaviour
             audioSourceDiscours.clip = clipDiscours;
         }
     }
-    
-    void Start()
-    {
-        // Vérifier si les sources audio sont correctement configurées
-        if (audioSourceGresillement != null && audioSourceGresillement.clip == null && clipGresillement != null)
-        {
-            audioSourceGresillement.clip = clipGresillement;
-            audioSourceGresillement.Play();
-        }
-        
-        if (audioSourceDiscours != null && audioSourceDiscours.clip == null && clipDiscours != null)
-        {
-            audioSourceDiscours.clip = clipDiscours;
-        }
-    }
-    
-    // Update est appelé une fois par frame
-    void Update()
-    {
-        // Vérifier si le joueur est à proximité de la radio
-        VerifierProximiteJoueur();
-        
-        // Vérifier l'interaction avec la radio (Desktop)
-        if (estJoueurProche && !estEnInteraction && Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
-        {
-            CommencerInteraction();
-        }
-        
-        // Gérer l'ajustement de la fréquence
-        if (estEnInteraction)
-        {
-            AjusterFrequence();
-            
-            // Vérifier si la fréquence est correcte
-            VerifierFrequence();
-            
-            // Ajuster le volume du grésillement en fonction de la proximité avec la fréquence correcte
-            AjusterGresillement();
-            
-            // Permettre au joueur de quitter l'interaction en appuyant sur Échap (Desktop)
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-            {
-                TerminerInteraction();
-            }
-        }
-    }
+
+
     
     // Vérifier si le joueur est à proximité de la radio
     void VerifierProximiteJoueur()

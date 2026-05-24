@@ -108,28 +108,35 @@ public class TableauInteractif : MonoBehaviour
         styleTexte.normal.textColor = Color.white;
         styleTexte.alignment = TextAnchor.MiddleCenter;
         styleTexte.fontStyle = FontStyle.Bold;
+    }
 
+    void Start()
+    {
+        CheckPlayerProximity();
+        
         if (xrInteractable == null) xrInteractable = GetComponent<XRSimpleInteractable>();
         if (xrInteractable != null)
         {
             xrInteractable.selectEntered.AddListener(OnXRSelect);
             xrInteractable.hoverEntered.AddListener(OnXRHover);
         }
-        }
+    }
 
-        private void OnXRHover(HoverEnterEventArgs args)
+    private void OnXRHover(HoverEnterEventArgs args)
+    {
+        // On VR, we might want to start interaction just by hovering if it's a direct interactor
+        if (!isInteracting && args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor)
         {
-        if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor && !isInteracting)
-        {
-            StartInteraction();
+            // StartInteraction(); 
         }
-        }
+    }
 
-        private void OnXRSelect(SelectEnterEventArgs args)
+    private void OnXRSelect(SelectEnterEventArgs args)
     {
         if (isInteracting) StopInteraction();
         else StartInteraction();
     }
+
     
     // Update est appelé une fois par frame
     void Update()
