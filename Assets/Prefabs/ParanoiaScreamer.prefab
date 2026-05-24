@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 6736714697864933805}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.18, y: 0.175, z: 1}
+  m_LocalPosition: {x: 4.15, y: 0, z: 0}
+  m_LocalScale: {x: 0.90000004, y: 0.875, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -200,9 +200,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ghostRenderer: {fileID: 1357654304276265355}
   audioSource: {fileID: 2596719365621516275}
-  displayDuration: 1.3
+  displayDuration: 5
   distanceInFront: 2
   heightOffset: -0.2
   useRandomSpawning: 1
-  minInterval: 45
-  maxInterval: 90
+  minInterval: 20
+  maxInterval: 70
